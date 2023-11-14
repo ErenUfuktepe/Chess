@@ -53,6 +53,7 @@ public abstract class Piece {
             case PAWN:
                 possibleMoves.addAll(moveForwards());
                 possibleMoves.addAll(moveCrossRightTop());
+                possibleMoves.addAll(moveCrossLeftTop());
                 return possibleMoves;
             case KING:
             case QUEEN:
@@ -62,10 +63,14 @@ public abstract class Piece {
                 possibleMoves.addAll(moveCrossRightBottom());
                 possibleMoves.addAll(moveCrossLeftTop());
                 possibleMoves.addAll(moveCrossLeftBottom());
+                possibleMoves.addAll(moveLeft());
+                possibleMoves.addAll(moveRight());
                 return possibleMoves;
             case ROOK:
                 possibleMoves.addAll(moveForwards());
                 possibleMoves.addAll(moveBackwards());
+                possibleMoves.addAll(moveLeft());
+                possibleMoves.addAll(moveRight());
                 return possibleMoves;
             case BISHOP:
                 possibleMoves.addAll(moveCrossRightTop());
@@ -82,11 +87,15 @@ public abstract class Piece {
 
     private List<Position> moveForwards() {
         List<Position> moves = new ArrayList<>();
-        moves.add(new Position(this.position.getX(), this.position.getY() + 1));
         boolean isMovable = (this.position.getY() + 1) < 8;
 
+        if (!isMovable) {
+            return moves;
+        }
+
         // Pawn and King can only move one box at a time.
-        if ((this.pieceType.equals(PieceType.PAWN) || this.pieceType.equals(PieceType.KING) && isMovable)) {
+        if (this.pieceType.equals(PieceType.PAWN) || this.pieceType.equals(PieceType.KING)) {
+            moves.add(new Position(this.position.getX(), this.position.getY() + 1));
             isMovable = (this.position.getY() + 2) < 8;
             // Pawn can move two box if it is it's first move.
             if(this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove() && isMovable) {
@@ -95,11 +104,9 @@ public abstract class Piece {
             return moves;
         }
 
-        int nextPosition = this.position.getY() + 2;
-        for ( ;nextPosition < 8; nextPosition++) {
-            moves.add(new Position(this.position.getX(), this.position.getY() +nextPosition));
+        for (int nextPosition = this.position.getY(); nextPosition < 8; nextPosition++) {
+            moves.add(new Position(this.position.getX(), nextPosition));
         }
-
         return moves;
     }
 
@@ -107,33 +114,78 @@ public abstract class Piece {
         List<Position> moves = new ArrayList<>();
         boolean isMovable = (this.position.getY() - 1) >= 0;
 
+        if (!isMovable) {
+            return moves;
+        }
+
         // King can move one box at a time.
-        if (this.pieceType.equals(PieceType.KING) && isMovable) {
+        if (this.pieceType.equals(PieceType.KING)) {
             moves.add(new Position(this.position.getX(), this.position.getY() - 1));
             return moves;
         }
 
         for (int nextPosition = this.position.getY() ;nextPosition >= 0; nextPosition--) {
-            isMovable = (this.position.getY() - 1) >= 0;
-            if (!isMovable) {
-                break;
-            }
-            moves.add(new Position(this.position.getX(), this.position.getY() - nextPosition));
+            moves.add(new Position(this.position.getX(), nextPosition));
+        }
+        return moves;
+    }
+
+    private List<Position> moveRight() {
+        List<Position> moves = new ArrayList<>();
+        boolean isMovable = (this.position.getX() + 1) < 8;
+
+        if (!isMovable) {
+            return moves;
         }
 
+        // King can move one box at a time.
+        if (this.pieceType.equals(PieceType.KING)) {
+            moves.add(new Position(this.position.getX() + 1, this.position.getY()));
+            return moves;
+        }
+
+        for (int nextPosition = this.position.getY() ;nextPosition < 8; nextPosition++) {
+            moves.add(new Position(nextPosition, this.position.getY()));
+        }
+        return moves;
+    }
+
+    private List<Position> moveLeft() {
+        List<Position> moves = new ArrayList<>();
+        boolean isMovable = (this.position.getX() + 1) >= 0;
+
+        if (!isMovable) {
+            return moves;
+        }
+
+        // King can move one box at a time.
+        if (this.pieceType.equals(PieceType.KING)) {
+            moves.add(new Position(this.position.getX() - 1, this.position.getY()));
+            return moves;
+        }
+
+        for (int nextPosition = this.position.getX() ;nextPosition >= 0; nextPosition--) {
+            moves.add(new Position(nextPosition, this.position.getY()));
+        }
         return moves;
     }
 
     private List<Position> moveCrossRightTop() {
         List<Position> moves = new ArrayList<>();
+        boolean isMovable = (this.position.getX() + 1 < 8 && this.position.getY() + 1 < 8);
+
+        if (!isMovable) {
+            return moves;
+        }
+
+        if(this.pieceType.equals(PieceType.KING) || this.pieceType.equals(PieceType.PAWN) ) {
+            moves.add(new Position(this.position.getX() + 1, this.position.getY() + 1));
+            return moves;
+        }
 
         for (int nextPosition = 1; nextPosition < 8; nextPosition++) {
-            boolean isMovable = (this.position.getX() + nextPosition > 8 && this.position.getY() + nextPosition > 8);
+            isMovable = (this.position.getX() + nextPosition < 8 && this.position.getY() + nextPosition < 8);
             if (!isMovable) {
-                break;
-            }
-            else if(this.pieceType.equals(PieceType.KING) || this.pieceType.equals(PieceType.PAWN) ) {
-                moves.add(new Position(this.position.getX() + nextPosition, this.position.getY() + nextPosition));
                 break;
             }
             moves.add(new Position(this.position.getX() + nextPosition, this.position.getY() + nextPosition));
@@ -143,14 +195,20 @@ public abstract class Piece {
 
     private List<Position> moveCrossLeftBottom() {
         List<Position> moves = new ArrayList<>();
+        boolean isMovable = (this.position.getX() - 1 >= 0 && this.position.getY() - 1 >= 0);
+
+        if (!isMovable) {
+            return moves;
+        }
+
+        if(this.pieceType.equals(PieceType.KING)) {
+            moves.add(new Position(this.position.getX() - 1, this.position.getY() - 1));
+            return moves;
+        }
 
         for (int nextPosition = 1; nextPosition < 8; nextPosition++) {
-            boolean isMovable = (this.position.getX() - nextPosition >= 0 && this.position.getY() - nextPosition >= 0);
+            isMovable = (this.position.getX() - nextPosition >= 0 && this.position.getY() - nextPosition >= 0);
             if (!isMovable) {
-                break;
-            }
-            else if(this.pieceType.equals(PieceType.KING)) {
-                moves.add(new Position(this.position.getX() - nextPosition, this.position.getY() - nextPosition));
                 break;
             }
             moves.add(new Position(this.position.getX() - nextPosition, this.position.getY() - nextPosition));
@@ -160,14 +218,20 @@ public abstract class Piece {
 
     private List<Position> moveCrossLeftTop() {
         List<Position> moves = new ArrayList<>();
+        boolean isMovable = (this.position.getX() - 1 >= 0 && this.position.getY() + 1 < 8);
+
+        if (!isMovable) {
+            return moves;
+        }
+
+        if(this.pieceType.equals(PieceType.KING)) {
+            moves.add(new Position(this.position.getX() - 1, this.position.getY() + 1));
+            return moves;
+        }
 
         for (int nextPosition = 1; nextPosition < 8; nextPosition++) {
-            boolean isMovable = (this.position.getX() - nextPosition >= 0 && this.position.getY() + nextPosition < 8);
+            isMovable = (this.position.getX() - nextPosition >= 0 && this.position.getY() + nextPosition < 8);
             if (!isMovable) {
-                break;
-            }
-            else if(this.pieceType.equals(PieceType.KING)) {
-                moves.add(new Position(this.position.getX() - nextPosition, this.position.getY() + nextPosition));
                 break;
             }
             moves.add(new Position(this.position.getX() - nextPosition, this.position.getY() + nextPosition));
@@ -178,18 +242,36 @@ public abstract class Piece {
 
     private List<Position> moveCrossRightBottom() {
         List<Position> moves = new ArrayList<>();
+        boolean isMovable = (this.position.getX() + 1 < 8 && this.position.getY() - 1 >= 0);
+
+        if (!isMovable) {
+            return moves;
+        }
+
+        if(this.pieceType.equals(PieceType.KING)) {
+            moves.add(new Position(this.position.getX() + 1, this.position.getY() - 1));
+            return moves;
+        }
 
         for (int nextPosition = 1; nextPosition < 8; nextPosition++) {
-            boolean isMovable = (this.position.getX() + nextPosition < 8 && this.position.getY() - nextPosition >= 0);
+            isMovable = (this.position.getX() + nextPosition < 8 && this.position.getY() - nextPosition >= 0);
             if (!isMovable) {
-                break;
-            }
-            else if(this.pieceType.equals(PieceType.KING)) {
-                moves.add(new Position(this.position.getX() + nextPosition, this.position.getY() - nextPosition));
                 break;
             }
             moves.add(new Position(this.position.getX() + nextPosition, this.position.getY() - nextPosition));
         }
         return moves;
+    }
+
+    @Override
+    public String toString() {
+        System.out.println("==============================");
+        System.out.println(this.pieceType);
+        System.out.println("X: " + this.position.getX() + "\n Y: " + this.position.getY());
+        System.out.println("==============================");
+        for (Position position : getPossibleMoves()) {
+            System.out.println("X: " + position.getX() + "\n Y: " + position.getY());
+        }
+        return "";
     }
 }
