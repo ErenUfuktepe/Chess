@@ -1,6 +1,6 @@
 package main.factories;
 
-import main.Piece;
+import main.pieces.Piece;
 import main.enums.Color;
 import main.enums.PieceType;
 import main.pieces.*;

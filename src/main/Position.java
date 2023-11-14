@@ -1,5 +1,7 @@
 package main;
 
+import main.pieces.Piece;
+
 public class Position {
     private int x;
     private int y;

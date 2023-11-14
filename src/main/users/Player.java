@@ -1,7 +1,8 @@
-package main;
+package main.users;
 
 import main.enums.Color;
 import main.factories.PieceFactory;
+import main.pieces.Piece;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +11,6 @@ public class Player {
     private List<Piece> pieces = new ArrayList<>();
     private Color color;
     private static final PieceFactory pieceFactory = new PieceFactory();
-
-    public Player() {
-
-    }
 
     public Player(Color color) {
         pieces.addAll(pieceFactory.buildPiecesForPlayer(color));

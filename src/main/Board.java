@@ -3,14 +3,15 @@ package main;
 import main.enums.Color;
 import main.factories.PieceFactory;
 import main.pieces.*;
+import main.users.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Board {
-    private Player whitePlayer = new Player();
-    private Player blackPlayer = new Player();
+    private Player whitePlayer;
+    private Player blackPlayer;
     private List<Position> positions = new ArrayList<>();
     private static final PieceFactory pieceFactory = new PieceFactory();
 
@@ -62,32 +63,35 @@ public class Board {
 
     public void placeWhitePlayerPieces(){
         AtomicInteger counter = new AtomicInteger(0);
-
+        // Placing the King to board.
         this.whitePlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(King.class))
                 .forEach(piece -> piece.setPosition(4, 7));
 
+        // Placing the Queen to board.
         this.whitePlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Queen.class))
                 .forEach(piece -> piece.setPosition(3, 7));
 
+        // Placing Rooks to board.
         this.whitePlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Rook.class))
                 .forEach(piece -> piece.setPosition(counter.getAndAdd(7), 7));
 
-
         counter.set(1);
+        // Placing Knights to board.
         this.whitePlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Knight.class))
                 .forEach(piece -> piece.setPosition(counter.getAndAdd(5), 7));
 
-
         counter.set(2);
+        // Placing Bishops to board.
         this.whitePlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Bishop.class))
                 .forEach(piece -> piece.setPosition(counter.getAndAdd(3), 7));
 
         counter.set(0);
+        // Placing Pawns to board.
         this.whitePlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Pawn.class))
                 .forEach(piece -> piece.setPosition(counter.getAndIncrement(), 6));
@@ -96,32 +100,36 @@ public class Board {
 
     public void placeBlackPlayerPieces(){
         AtomicInteger counter = new AtomicInteger(0);
-
+        // Placing the King to board.
         this.blackPlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(King.class))
                 .forEach(piece -> piece.setPosition(4, 0));
 
+        // Placing the Queen to board.
         this.blackPlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Queen.class))
                 .forEach(piece -> piece.setPosition(3, 0));
 
+        // Placing Rooks to board.
         this.blackPlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Rook.class))
                 .forEach(piece -> piece.setPosition(counter.getAndAdd(7), 0));
 
 
         counter.set(1);
+        // Placing Knights to board.
         this.blackPlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Knight.class))
                 .forEach(piece -> piece.setPosition(counter.getAndAdd(5), 0));
 
-
         counter.set(2);
+        // Placing Bishops to board.
         this.blackPlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Bishop.class))
                 .forEach(piece -> piece.setPosition(counter.getAndAdd(3), 0));
 
         counter.set(0);
+        // Placing Pawns to board.
         this.blackPlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Pawn.class))
                 .forEach(piece -> piece.setPosition(counter.getAndIncrement(), 1));

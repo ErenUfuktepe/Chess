@@ -9,15 +9,6 @@ public class Main {
 
         board.placeWhitePlayerPieces();
         board.placeBlackPlayerPieces();
-
-        board.getWhitePlayer().getPieces().stream()
-                .forEach(piece -> {
-                    System.out.println(piece.getClass());
-                    System.out.println(piece.getPosition().getX());
-                    System.out.println(piece.getPosition().getY());
-                });
-
-
     }
 
 }

@@ -1,7 +1,7 @@
 package main.factories;
 
 import main.Board;
-import main.Player;
+import main.users.Player;
 import main.enums.Color;
 
 import java.util.ArrayList;
