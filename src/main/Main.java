@@ -9,6 +9,7 @@ public class Main {
 
         board.placeWhitePlayerPieces();
         board.placeBlackPlayerPieces();
+
     }
 
 }
