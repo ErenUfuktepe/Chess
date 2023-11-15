@@ -1,5 +1,6 @@
 package main;
 
+import gui.ChessBoard;
 import main.pieces.Piece;
 
 public class Main {
@@ -12,9 +13,12 @@ public class Main {
         board.placeWhitePlayerPieces();
         board.placeBlackPlayerPieces();
 
-        for(Piece piece : board.getWhitePlayer().getPieces()) {
-            piece.toString();
-        }
+        //for(Piece piece : board.getWhitePlayer().getPieces()) {
+          //  piece.toString();
+        //}
+        ChessBoard chessBoard = new ChessBoard();
+        chessBoard.build();
+
     }
 
 }

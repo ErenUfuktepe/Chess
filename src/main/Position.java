@@ -41,4 +41,8 @@ public class Position {
         this.piece = piece;
         return this;
     }
+
+    public String getKey(){
+        return String.valueOf(this.x) + String.valueOf(this.y);
+    }
 }

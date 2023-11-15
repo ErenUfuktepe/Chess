@@ -11,6 +11,7 @@ public abstract class Piece {
     private PieceType pieceType;
     private Position position = new Position();
     private Color color;
+    private String iconUrl;
 
     public Piece(PieceType pieceType, Color color){
         this.color = color;
@@ -43,6 +44,15 @@ public abstract class Piece {
     public void setPieceType(PieceType pieceType) {
         this.pieceType = pieceType;
     }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
+
     public boolean canMoveBackwards() {
         return true;
     }
@@ -274,4 +284,5 @@ public abstract class Piece {
         }
         return "";
     }
+
 }
