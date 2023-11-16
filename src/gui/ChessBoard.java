@@ -37,7 +37,7 @@ public class ChessBoard extends JFrame {
                 isBlack = !isBlack;
             }
 
-            square.addMouseListener(test(square));
+            square.addActionListener(test());
 
             // Formatting one digit keys to two digit -> (1 => 01)
             square.setKey(String.format("%02d", key));
@@ -106,44 +106,31 @@ public class ChessBoard extends JFrame {
                 .forEach(piece -> mapPiecesWithSquares(piece));
     }
 
-    private MouseListener test(Square square) {
-        return new MouseListener() {
+
+    private ActionListener test() {
+        return new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
+                Square square = ((Square) e.getSource());
+                square.setActive(true);
+                square.setPossibleMoves(((Square) e.getSource()).getPiece().getPossibleMoves());
+                square.setEnabled(false);
+                square.setBackground(Color.YELLOW);
+
                 Optional<Square> previousActiveButton = squares.stream()
                         .filter(sq -> (sq.isActive() && !sq.getKey().equals(square.getKey())))
                         .findFirst();
 
                 if (previousActiveButton.isPresent()) {
-                    System.out.println(previousActiveButton.get().getKey());
                     previousActiveButton.get()
                             .setActive(false)
+                            .restBackGround()
                             .getPossibleMoves().stream().forEach(move -> getSquareByKey(move.getKey()).restBackGround());
                 }
 
                 for (Position position : square.getPossibleMoves()) {
-                    getSquareByKey(position.getKey()).setBackground(Color.YELLOW);
+                    getSquareByKey(position.getKey()).setBackground(Color.GREEN);
                 }
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
             }
         };
     }

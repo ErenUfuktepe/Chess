@@ -173,7 +173,7 @@ public abstract class Piece {
             return moves;
         }
 
-        for (int nextPosition = this.position.getY() ;nextPosition < 8; nextPosition++) {
+        for (int nextPosition = this.position.getX() ;nextPosition < 8; nextPosition++) {
             moves.add(new Position(nextPosition, this.position.getY()));
         }
         return moves;
@@ -209,7 +209,7 @@ public abstract class Piece {
 
         if(this.pieceType.equals(PieceType.KING) || this.pieceType.equals(PieceType.PAWN) ) {
             if (this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove()) {
-                moves.add(new Position(this.position.getX() - 1, this.position.getY() + 1));
+                moves.add(new Position(this.position.getX() + 1, this.position.getY() + 1));
                 return moves;
             }
             moves.add(new Position(this.position.getX() + 1, this.position.getY() + 1));

@@ -5,9 +5,11 @@ import main.pieces.Piece;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.List;
 
@@ -18,14 +20,7 @@ public class Square extends JButton {
     private boolean isActive;
     private List<Position> possibleMoves;
     public Square() {
-        this.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                isActive = true;
-                possibleMoves = piece.getPossibleMoves();
-                setEnabled(false);
-            }
-        });
+
     }
 
     public String getKey() {
@@ -44,6 +39,10 @@ public class Square extends JButton {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Piece getPiece() {
+        return this.piece;
     }
 
     public void setPiece(Piece piece) {
@@ -68,10 +67,6 @@ public class Square extends JButton {
         this.color = color;
     }
 
-    public void restBackGround() {
-        setBackground(this.color);
-    }
-
     public boolean isActive() {
         return isActive;
     }
@@ -81,4 +76,33 @@ public class Square extends JButton {
         setEnabled(!active);
         return this;
     }
+
+    public Square restBackGround() {
+        setEnabled(true);
+        setBackground(this.color);
+        return this;
+    }
+
+    @Override
+    public void addActionListener(ActionListener l) {
+        super.addActionListener(l);
+    }
+
+
+    /*
+    public void addActionListener() {
+        super.addActionListener(e -> {
+            ((Square) e.getSource()).setActive(true);
+            ((Square) e.getSource()).setPossibleMoves(((Square) e.getSource()).getPiece().getPossibleMoves());
+            setEnabled(false);
+            setBackground(Color.YELLOW);
+        });
+    }
+*/
+
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        super.addPropertyChangeListener(listener);
+    }
+
 }
