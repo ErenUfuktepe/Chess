@@ -12,6 +12,7 @@ public abstract class Piece {
     private Position position = new Position();
     private Color color;
     private String iconUrl;
+    private List<Position> possibleMoves = new ArrayList<>();
 
     public Piece(PieceType pieceType, Color color){
         this.color = color;
@@ -25,6 +26,7 @@ public abstract class Piece {
     public Piece setPosition(int x, int y) {
         this.position.setX(x)
                 .setY(y);
+        setPossibleMoves();
         return this;
     }
 
@@ -53,46 +55,58 @@ public abstract class Piece {
         this.iconUrl = iconUrl;
     }
 
+    public List<Position> getPossibleMoves() {
+        return possibleMoves;
+    }
+
     public boolean canMoveBackwards() {
         return true;
     }
 
-    public List<Position> getPossibleMoves() {
-        List<Position> possibleMoves = new ArrayList<>();
+    private List<Position> setPossibleMoves() {
+        this.possibleMoves = new ArrayList<>();
         switch (this.pieceType) {
             case PAWN:
-                possibleMoves.addAll(moveForwards());
-                possibleMoves.addAll(moveCrossRightTop());
-                possibleMoves.addAll(moveCrossLeftTop());
-                return possibleMoves;
+                if (this.color.equals(Color.BLACK)) {
+                    this.possibleMoves.addAll(moveBackwards());
+                    this.possibleMoves.addAll(moveCrossRightBottom());
+                    this.possibleMoves.addAll(moveCrossLeftBottom());
+                } else{
+                    this.possibleMoves.addAll(moveForwards());
+                    this.possibleMoves.addAll(moveCrossRightTop());
+                    this.possibleMoves.addAll(moveCrossLeftTop());
+                }
+
+                break;
             case KING:
             case QUEEN:
-                possibleMoves.addAll(moveForwards());
-                possibleMoves.addAll(moveBackwards());
-                possibleMoves.addAll(moveCrossRightTop());
-                possibleMoves.addAll(moveCrossRightBottom());
-                possibleMoves.addAll(moveCrossLeftTop());
-                possibleMoves.addAll(moveCrossLeftBottom());
-                possibleMoves.addAll(moveLeft());
-                possibleMoves.addAll(moveRight());
-                return possibleMoves;
+                this.possibleMoves.addAll(moveForwards());
+                this.possibleMoves.addAll(moveBackwards());
+                this.possibleMoves.addAll(moveCrossRightTop());
+                this.possibleMoves.addAll(moveCrossRightBottom());
+                this.possibleMoves.addAll(moveCrossLeftTop());
+                this.possibleMoves.addAll(moveCrossLeftBottom());
+                this.possibleMoves.addAll(moveLeft());
+                this.possibleMoves.addAll(moveRight());
+                break;
             case ROOK:
-                possibleMoves.addAll(moveForwards());
-                possibleMoves.addAll(moveBackwards());
-                possibleMoves.addAll(moveLeft());
-                possibleMoves.addAll(moveRight());
-                return possibleMoves;
+                this.possibleMoves.addAll(moveForwards());
+                this.possibleMoves.addAll(moveBackwards());
+                this.possibleMoves.addAll(moveLeft());
+                this.possibleMoves.addAll(moveRight());
+                break;
             case BISHOP:
-                possibleMoves.addAll(moveCrossRightTop());
-                possibleMoves.addAll(moveCrossRightBottom());
-                possibleMoves.addAll(moveCrossLeftTop());
-                possibleMoves.addAll(moveCrossLeftBottom());
-                return possibleMoves;
+                this.possibleMoves.addAll(moveCrossRightTop());
+                this.possibleMoves.addAll(moveCrossRightBottom());
+                this.possibleMoves.addAll(moveCrossLeftTop());
+                this.possibleMoves.addAll(moveCrossLeftBottom());
+                break;
             case KNIGHT:
-                return possibleMoves;
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown piece.");
         }
+        return this.possibleMoves;
     }
 
     private List<Position> moveForwards() {
@@ -128,9 +142,14 @@ public abstract class Piece {
             return moves;
         }
 
-        // King can move one box at a time.
-        if (this.pieceType.equals(PieceType.KING)) {
+        // Pawn and King can move one box at a time.
+        if (this.pieceType.equals(PieceType.PAWN) || this.pieceType.equals(PieceType.KING)) {
             moves.add(new Position(this.position.getX(), this.position.getY() - 1));
+            isMovable = (this.position.getY() - 2) < 8;
+            // Pawn can move two box if it is it's first move.
+            if(this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove() && isMovable) {
+                moves.add(new Position(this.position.getX(), this.position.getY() - 2));
+            }
             return moves;
         }
 
@@ -189,6 +208,10 @@ public abstract class Piece {
         }
 
         if(this.pieceType.equals(PieceType.KING) || this.pieceType.equals(PieceType.PAWN) ) {
+            if (this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove()) {
+                moves.add(new Position(this.position.getX() - 1, this.position.getY() + 1));
+                return moves;
+            }
             moves.add(new Position(this.position.getX() + 1, this.position.getY() + 1));
             return moves;
         }
@@ -211,7 +234,11 @@ public abstract class Piece {
             return moves;
         }
 
-        if(this.pieceType.equals(PieceType.KING)) {
+        if(this.pieceType.equals(PieceType.KING) || this.pieceType.equals(PieceType.PAWN)) {
+            if (this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove()) {
+                moves.add(new Position(this.position.getX() - 1, this.position.getY() - 1));
+                return moves;
+            }
             moves.add(new Position(this.position.getX() - 1, this.position.getY() - 1));
             return moves;
         }
@@ -234,7 +261,11 @@ public abstract class Piece {
             return moves;
         }
 
-        if(this.pieceType.equals(PieceType.KING)) {
+        if(this.pieceType.equals(PieceType.KING) || this.pieceType.equals(PieceType.PAWN)) {
+            if (this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove()) {
+                moves.add(new Position(this.position.getX() - 1, this.position.getY() + 1));
+                return moves;
+            }
             moves.add(new Position(this.position.getX() - 1, this.position.getY() + 1));
             return moves;
         }
@@ -258,7 +289,11 @@ public abstract class Piece {
             return moves;
         }
 
-        if(this.pieceType.equals(PieceType.KING)) {
+        if(this.pieceType.equals(PieceType.KING) || this.pieceType.equals(PieceType.PAWN)) {
+            if (this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove()) {
+                moves.add(new Position(this.position.getX() + 1, this.position.getY() - 1));
+                return moves;
+            }
             moves.add(new Position(this.position.getX() + 1, this.position.getY() - 1));
             return moves;
         }
@@ -272,17 +307,4 @@ public abstract class Piece {
         }
         return moves;
     }
-
-    @Override
-    public String toString() {
-        System.out.println("==============================");
-        System.out.println(this.pieceType);
-        System.out.println("X: " + this.position.getX() + "\n Y: " + this.position.getY());
-        System.out.println("==============================");
-        for (Position position : getPossibleMoves()) {
-            System.out.println("X: " + position.getX() + "\n Y: " + position.getY());
-        }
-        return "";
-    }
-
 }

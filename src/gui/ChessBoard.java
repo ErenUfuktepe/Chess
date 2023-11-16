@@ -1,18 +1,25 @@
 package gui;
 
 import main.Board;
+import main.Position;
+import main.pieces.Piece;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class ChessBoard extends JFrame {
     private static final JPanel panel = new JPanel();
     private final List<Square> squares = new ArrayList<>();
     private final Board board = new Board();
+    private Square activePiece;
 
     public ChessBoard() {
         int xAxis = 0;
@@ -30,22 +37,17 @@ public class ChessBoard extends JFrame {
                 isBlack = !isBlack;
             }
 
+            square.addMouseListener(test(square));
+
             // Formatting one digit keys to two digit -> (1 => 01)
             square.setKey(String.format("%02d", key));
 
             if (!isBlack) {
-                square.setBackground(Color.WHITE);
+                square.setColor(Color.WHITE);
             }
             else {
-                square.setBackground(Color.DARK_GRAY);
+                square.setColor(Color.DARK_GRAY);
             }
-
-            square.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    System.out.println(square.getKey());
-                }
-            });
 
             isBlack = !isBlack;
             square.setBounds(xAxis, yAxis, 50, 50);
@@ -64,6 +66,9 @@ public class ChessBoard extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+
+
+
     }
 
     // Todo : NoSuchelementexception
@@ -75,6 +80,18 @@ public class ChessBoard extends JFrame {
                 .setIcon(url);
     }
 
+
+    private Square getSquareByKey(String key) {
+        return squares.stream().filter(square -> square.getKey().equals(key))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Square not found for the given key."));
+    }
+
+    public void mapPiecesWithSquares(Piece piece) {
+        Square square = getSquareByKey(piece.getPosition().getKey());
+        square.setPiece(piece);
+    }
+
     public void build() {
         this.board.buildWhitePlayer()
                 .buildBlackPlayer();
@@ -83,13 +100,53 @@ public class ChessBoard extends JFrame {
         this.board.placeBlackPlayerPieces();
 
         this.board.getWhitePlayer().getPieces().stream()
-                .forEach(piece -> setIconByKey(piece.getPosition().getKey(), piece.getIconUrl()));
+                .forEach(piece -> mapPiecesWithSquares(piece));
 
         this.board.getBlackPlayer().getPieces().stream()
-                .forEach(piece -> setIconByKey(piece.getPosition().getKey(), piece.getIconUrl()));
+                .forEach(piece -> mapPiecesWithSquares(piece));
     }
 
+    private MouseListener test(Square square) {
+        return new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Optional<Square> previousActiveButton = squares.stream()
+                        .filter(sq -> (sq.isActive() && !sq.getKey().equals(square.getKey())))
+                        .findFirst();
 
+                if (previousActiveButton.isPresent()) {
+                    System.out.println(previousActiveButton.get().getKey());
+                    previousActiveButton.get()
+                            .setActive(false)
+                            .getPossibleMoves().stream().forEach(move -> getSquareByKey(move.getKey()).restBackGround());
+                }
+
+                for (Position position : square.getPossibleMoves()) {
+                    getSquareByKey(position.getKey()).setBackground(Color.YELLOW);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        };
+    }
 
 
 }
