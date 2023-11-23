@@ -16,8 +16,8 @@ public class Board {
     private static final PieceFactory pieceFactory = new PieceFactory();
 
     public Board(){
-        for(int x = 0; x > 8; x++){
-            for(int y = 0; y > 8; y++){
+        for(int x = 0; x < 8; x++){
+            for(int y = 0; y < 8; y++){
                 positions.add(new Position(x, y));
             }
         }
@@ -94,7 +94,12 @@ public class Board {
         // Placing Pawns to board.
         this.whitePlayer.getPieces().stream()
                 .filter(piece -> piece.getClass().equals(Pawn.class))
-                .forEach(piece -> piece.setPosition(counter.getAndIncrement(), 1));
+                .forEach(piece -> {
+                    piece.setPosition(counter.getAndIncrement(), 1);
+                    getPositions().stream()
+                            .filter(position -> position.getKey().equals(piece.getPosition().getKey()))
+                                    .forEach(position -> position.setPiece(piece));
+                });
 
     }
 

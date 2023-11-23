@@ -5,12 +5,14 @@ import main.pieces.Piece;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Square extends JButton {
@@ -18,9 +20,23 @@ public class Square extends JButton {
     private String key;
     private Piece piece;
     private boolean isActive;
+    private boolean hasPiece = false;
     private List<Position> possibleMoves;
-    public Square() {
+    private List<Position> conditionalMoves = new ArrayList<>();
 
+    public Square() {
+        super.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Square square = ((Square) e.getSource());
+                if (square.hasPiece || square.getBackground().equals(Color.GREEN)) {
+                    square.setEnabled(true);
+                }
+                else {
+                    square.setEnabled(false);
+                }
+            }
+        });
     }
 
     public String getKey() {
@@ -31,23 +47,28 @@ public class Square extends JButton {
         this.key = key;
     }
 
-    public void setIcon(String url) {
-        try {
-            Image img = ImageIO.read(getClass().getResource(url));
-            img = img.getScaledInstance(50, 50, Image.SCALE_DEFAULT);
-            super.setIcon(new ImageIcon(img));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public Piece getPiece() {
         return this.piece;
     }
 
     public void setPiece(Piece piece) {
-        this.piece = piece;
-        setIcon(piece.getIconUrl());
+        if (piece == null) {
+            this.piece = null;
+            this.hasPiece = false;
+            setIcon(null);
+        }
+        else {
+            this.hasPiece = true;
+            this.piece = piece;
+            this.possibleMoves = this.piece.getPossibleMoves();
+            try {
+                Image img = ImageIO.read(getClass().getResource(piece.getIconUrl()));
+                img = img.getScaledInstance(50, 50, Image.SCALE_DEFAULT);
+                setIcon(new ImageIcon(img));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public List<Position> getPossibleMoves() {
@@ -56,6 +77,14 @@ public class Square extends JButton {
 
     public void setPossibleMoves(List<Position> possibleMoves) {
         this.possibleMoves = possibleMoves;
+    }
+
+    public List<Position> getConditionalMoves() {
+        return conditionalMoves;
+    }
+
+    public void setConditionalMoves(List<Position> conditionalMoves) {
+        this.conditionalMoves = conditionalMoves;
     }
 
     public Color getColor() {
@@ -77,8 +106,11 @@ public class Square extends JButton {
         return this;
     }
 
+    public boolean hasPiece() {
+        return this.hasPiece;
+    }
+
     public Square restBackGround() {
-        setEnabled(true);
         setBackground(this.color);
         return this;
     }
@@ -88,21 +120,13 @@ public class Square extends JButton {
         super.addActionListener(l);
     }
 
-
-    /*
-    public void addActionListener() {
-        super.addActionListener(e -> {
-            ((Square) e.getSource()).setActive(true);
-            ((Square) e.getSource()).setPossibleMoves(((Square) e.getSource()).getPiece().getPossibleMoves());
-            setEnabled(false);
-            setBackground(Color.YELLOW);
-        });
+    protected void swapPieces(Square to) {
+        to.setPiece(this.piece);
+        this.setPiece(null);
     }
-*/
 
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         super.addPropertyChangeListener(listener);
     }
-
 }

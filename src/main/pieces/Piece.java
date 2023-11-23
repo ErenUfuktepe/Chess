@@ -6,6 +6,7 @@ import main.enums.PieceType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Piece {
     private PieceType pieceType;
@@ -13,6 +14,8 @@ public abstract class Piece {
     private Color color;
     private String iconUrl;
     private List<Position> possibleMoves = new ArrayList<>();
+    private List<Position> conditionalMoves = new ArrayList<>();
+
 
     public Piece(PieceType pieceType, Color color){
         this.color = color;
@@ -59,12 +62,40 @@ public abstract class Piece {
         return possibleMoves;
     }
 
+    public List<Position> getConditionalMoves() {
+        return conditionalMoves;
+    }
+
+    public Piece addConditionalMoves(Position conditionalPosition) {
+        this.conditionalMoves.add(conditionalPosition);
+        return this;
+    }
+
+
+    // Todo: can change the return type
+    public Piece move(String key) {
+        this.position.setX(Character.digit(key.charAt(0), 10))
+                .setY(Character.digit(key.charAt(1), 10));
+        setPossibleMoves();
+        return this;
+    }
+
     public boolean canMoveBackwards() {
         return true;
     }
 
-    private List<Position> setPossibleMoves() {
-        this.possibleMoves = new ArrayList<>();
+    protected void checkConditionalMoves() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void compareBoardWithPossibleMoves(Map<String, Color> pieceMap) {
+        throw new UnsupportedOperationException();
+    }
+
+    protected List<Position> setPossibleMoves() {
+        this.possibleMoves.clear();
+        this.conditionalMoves.clear();
+
         switch (this.pieceType) {
             case PAWN:
                 if (this.color.equals(Color.BLACK)) {
@@ -76,7 +107,7 @@ public abstract class Piece {
                     this.possibleMoves.addAll(moveCrossRightTop());
                     this.possibleMoves.addAll(moveCrossLeftTop());
                 }
-
+                this.checkConditionalMoves();
                 break;
             case KING:
             case QUEEN:
@@ -102,6 +133,7 @@ public abstract class Piece {
                 this.possibleMoves.addAll(moveCrossLeftBottom());
                 break;
             case KNIGHT:
+                // Todo : Add Knight moves
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown piece.");
@@ -120,11 +152,6 @@ public abstract class Piece {
         // Pawn and King can only move one box at a time.
         if (this.pieceType.equals(PieceType.PAWN) || this.pieceType.equals(PieceType.KING)) {
             moves.add(new Position(this.position.getX(), this.position.getY() + 1));
-            isMovable = (this.position.getY() + 2) < 8;
-            // Pawn can move two box if it is it's first move.
-            if(this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove() && isMovable) {
-                moves.add(new Position(this.position.getX(), this.position.getY() + 2));
-            }
             return moves;
         }
 
@@ -145,11 +172,6 @@ public abstract class Piece {
         // Pawn and King can move one box at a time.
         if (this.pieceType.equals(PieceType.PAWN) || this.pieceType.equals(PieceType.KING)) {
             moves.add(new Position(this.position.getX(), this.position.getY() - 1));
-            isMovable = (this.position.getY() - 2) < 8;
-            // Pawn can move two box if it is it's first move.
-            if(this.pieceType.equals(PieceType.PAWN) && ((Pawn) this).isFirstMove() && isMovable) {
-                moves.add(new Position(this.position.getX(), this.position.getY() - 2));
-            }
             return moves;
         }
 

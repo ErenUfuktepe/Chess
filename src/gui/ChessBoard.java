@@ -8,18 +8,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ChessBoard extends JFrame {
     private static final JPanel panel = new JPanel();
     private final List<Square> squares = new ArrayList<>();
     private final Board board = new Board();
-    private Square activePiece;
 
     public ChessBoard() {
         int xAxis = 0;
@@ -37,7 +33,7 @@ public class ChessBoard extends JFrame {
                 isBlack = !isBlack;
             }
 
-            square.addActionListener(test());
+            square.addActionListener(buttonAction());
 
             // Formatting one digit keys to two digit -> (1 => 01)
             square.setKey(String.format("%02d", key));
@@ -66,20 +62,7 @@ public class ChessBoard extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-
-
-
     }
-
-    // Todo : NoSuchelementexception
-    private void setIconByKey(String key, String url) {
-        this.squares.stream()
-                .filter(square -> square.getKey().equals(key))
-                .findFirst()
-                .get()
-                .setIcon(url);
-    }
-
 
     private Square getSquareByKey(String key) {
         return squares.stream().filter(square -> square.getKey().equals(key))
@@ -107,33 +90,77 @@ public class ChessBoard extends JFrame {
     }
 
 
-    private ActionListener test() {
+    private ActionListener buttonAction() {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Square square = ((Square) e.getSource());
-                square.setActive(true);
-                square.setPossibleMoves(((Square) e.getSource()).getPiece().getPossibleMoves());
-                square.setEnabled(false);
-                square.setBackground(Color.YELLOW);
 
                 Optional<Square> previousActiveButton = squares.stream()
                         .filter(sq -> (sq.isActive() && !sq.getKey().equals(square.getKey())))
                         .findFirst();
 
+                if (!square.hasPiece()) {
+                } else {
+                    Map<String, main.enums.Color> test = squares.stream().filter(a-> a.hasPiece())
+                            .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece().getColor()));
+                    System.out.println(test);
+                    square.getPiece().compareBoardWithPossibleMoves(test);
+                }
+
+
+                if (square.getBackground().equals(Color.GREEN)) {
+                    square.setPiece(previousActiveButton.get().getPiece());
+                    square.getPiece().move(square.getKey());
+                    movePiece(square);
+                    squares.stream().filter(sq -> sq.getBackground().equals(Color.GREEN))
+                            .forEach(sq -> sq.restBackGround());
+                    return;
+                }
+
+                square.setActive(true);
+                square.setPossibleMoves(((Square) e.getSource()).getPiece().getPossibleMoves());
+                square.setConditionalMoves(((Square) e.getSource()).getPiece().getConditionalMoves());
+                square.setEnabled(false);
+                square.setBackground(Color.YELLOW);
+
                 if (previousActiveButton.isPresent()) {
                     previousActiveButton.get()
                             .setActive(false)
                             .restBackGround()
-                            .getPossibleMoves().stream().forEach(move -> getSquareByKey(move.getKey()).restBackGround());
+                            .getPossibleMoves().stream()
+                                .forEach(move -> getSquareByKey(move.getKey()).restBackGround());
                 }
 
                 for (Position position : square.getPossibleMoves()) {
-                    getSquareByKey(position.getKey()).setBackground(Color.GREEN);
+                    Square movable = getSquareByKey(position.getKey());
+                    movable.setBackground(Color.GREEN);
+                    movable.setEnabled(true);
                 }
+
+                for (Position position : square.getConditionalMoves()) {
+                    Square movable = getSquareByKey(position.getKey());
+                    if (!movable.hasPiece()) {
+                        movable.setBackground(Color.GREEN);
+                        movable.setEnabled(true);
+                    }
+                }
+
+
+
             }
         };
     }
+
+    private void movePiece(Square square) {
+        Square activeSquare = this.squares.stream()
+                .filter(sq -> sq.isActive())
+                .findFirst().get();
+        activeSquare.restBackGround();
+        activeSquare.setPiece(null);
+    }
+
+
 
 
 }
