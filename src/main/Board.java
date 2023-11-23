@@ -51,13 +51,15 @@ public class Board {
 
     public Board buildWhitePlayer() {
         this.whitePlayer = new Player(Color.WHITE)
-                .setPieces(pieceFactory.buildPiecesForPlayer(Color.WHITE));
+                .setPieces(pieceFactory.buildPiecesForPlayer(Color.WHITE))
+                .setPlayerTurn(true);
         return this;
     }
 
     public Board buildBlackPlayer() {
         this.blackPlayer = new Player(Color.BLACK)
-                .setPieces(pieceFactory.buildPiecesForPlayer(Color.BLACK));
+                .setPieces(pieceFactory.buildPiecesForPlayer(Color.BLACK))
+                .setPlayerTurn(false);
         return this;
     }
 
@@ -139,4 +141,10 @@ public class Board {
                 .filter(piece -> piece.getClass().equals(Pawn.class))
                 .forEach(piece -> piece.setPosition(counter.getAndIncrement(), 6));
     }
+
+    public void changePlayerTurn() {
+        this.whitePlayer.setPlayerTurn(!this.whitePlayer.isPlayerTurn());
+        this.blackPlayer.setPlayerTurn(!this.blackPlayer.isPlayerTurn());
+    }
+
 }

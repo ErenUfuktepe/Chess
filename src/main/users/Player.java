@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
+    private boolean isPlayerTurn;
     private List<Piece> pieces = new ArrayList<>();
     private Color color;
     private static final PieceFactory pieceFactory = new PieceFactory();
@@ -31,6 +32,15 @@ public class Player {
 
     public Player setColor(Color color) {
         this.color = color;
+        return this;
+    }
+
+    public boolean isPlayerTurn() {
+        return isPlayerTurn;
+    }
+
+    public Player setPlayerTurn(boolean playerTurn) {
+        isPlayerTurn = playerTurn;
         return this;
     }
 }
