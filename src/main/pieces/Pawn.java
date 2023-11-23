@@ -50,6 +50,8 @@ public class Pawn extends Piece {
                 if (!(this.getPosition().getX() != position.getX())) {
                     this.getPossibleMoves().remove(position);
                 }
+            } else  {
+                this.getPossibleMoves().remove(position);
             }
         }
     }

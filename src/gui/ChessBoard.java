@@ -1,7 +1,6 @@
 package gui;
 
 import main.Board;
-import main.Position;
 import main.pieces.Piece;
 
 import javax.swing.*;
@@ -140,7 +139,6 @@ public class ChessBoard extends JFrame {
         }
     }
 
-
     private void setWhitePlayerTurn() {
         this.squares.stream()
                 .filter(square -> (square.hasPiece() && square.getPiece().getColor().equals(main.enums.Color.BLACK)))
@@ -150,7 +148,6 @@ public class ChessBoard extends JFrame {
                 .forEach(square -> square.setEnabled(true));
     }
 
-
     private void setBlackPlayerTurn() {
         this.squares.stream()
                 .filter(square -> (square.hasPiece() && square.getPiece().getColor().equals(main.enums.Color.WHITE)))
@@ -159,7 +156,6 @@ public class ChessBoard extends JFrame {
                 .filter(square -> (square.hasPiece() && square.getPiece().getColor().equals(main.enums.Color.BLACK)))
                 .forEach(square -> square.setEnabled(true));
     }
-
 
     private void cleanBoard() {
         squares.stream().filter(square -> square.getBackground().equals(Color.GREEN))
