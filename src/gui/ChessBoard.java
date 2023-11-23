@@ -94,62 +94,46 @@ public class ChessBoard extends JFrame {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Square square = ((Square) e.getSource());
+                Square activeSquare = ((Square) e.getSource());
 
-                Optional<Square> previousActiveButton = squares.stream()
-                        .filter(sq -> (sq.isActive() && !sq.getKey().equals(square.getKey())))
-                        .findFirst();
-
-                if (!square.hasPiece()) {
-                } else {
+                if (activeSquare.hasPiece()) {
                     Map<String, main.enums.Color> test = squares.stream().filter(a-> a.hasPiece())
                             .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece().getColor()));
-                    System.out.println(test);
-                    square.getPiece().compareBoardWithPossibleMoves(test);
+                    activeSquare.getPiece().compareBoardWithPossibleMoves(test);
+                    setMovables(activeSquare);
                 }
 
+                Square previousActiveSquare = squares.stream()
+                        .filter(square -> (square.isActive() && !square.getKey().equals(activeSquare.getKey())))
+                        .findFirst()
+                        .orElse(null);
 
-                if (square.getBackground().equals(Color.GREEN)) {
-                    square.setPiece(previousActiveButton.get().getPiece());
-                    square.getPiece().move(square.getKey());
-                    movePiece(square);
-                    squares.stream().filter(sq -> sq.getBackground().equals(Color.GREEN))
-                            .forEach(sq -> sq.restBackGround());
+                // Moving a piece to a possible position.
+                if (activeSquare.getBackground().equals(Color.GREEN)) {
+                    activeSquare.setPiece(previousActiveSquare.getPiece());
+                    activeSquare.getPiece().move(activeSquare.getKey());
+                    previousActiveSquare.restBackGround();
+                    previousActiveSquare.setPiece(null);
+                    cleanBoard();
                     return;
                 }
 
-                square.setActive(true);
-                square.setPossibleMoves(((Square) e.getSource()).getPiece().getPossibleMoves());
-                square.setConditionalMoves(((Square) e.getSource()).getPiece().getConditionalMoves());
-                square.setEnabled(false);
-                square.setBackground(Color.YELLOW);
-
-                if (previousActiveButton.isPresent()) {
-                    previousActiveButton.get()
-                            .setActive(false)
-                            .restBackGround()
-                            .getPossibleMoves().stream()
-                                .forEach(move -> getSquareByKey(move.getKey()).restBackGround());
+                if (previousActiveSquare != null) {
+                    previousActiveSquare.reset();
                 }
-
-                for (Position position : square.getPossibleMoves()) {
-                    Square movable = getSquareByKey(position.getKey());
-                    movable.setBackground(Color.GREEN);
-                    movable.setEnabled(true);
-                }
-
-                for (Position position : square.getConditionalMoves()) {
-                    Square movable = getSquareByKey(position.getKey());
-                    if (!movable.hasPiece()) {
-                        movable.setBackground(Color.GREEN);
-                        movable.setEnabled(true);
-                    }
-                }
-
-
-
+                activeSquare.setActive(true);
             }
         };
+    }
+
+    private void cleanBoard() {
+        squares.stream().filter(square -> square.getBackground().equals(Color.GREEN))
+                .forEach(square -> square.restBackGround());
+    }
+
+    private void setMovables(Square square) {
+        square.getPiece().getAllMoves().stream()
+                .forEach(position -> getSquareByKey(position.getKey()).setBackground(Color.GREEN));
     }
 
     private void movePiece(Square square) {

@@ -29,7 +29,14 @@ public class Square extends JButton {
             @Override
             public void stateChanged(ChangeEvent e) {
                 Square square = ((Square) e.getSource());
-                if (square.hasPiece || square.getBackground().equals(Color.GREEN)) {
+                if (square.isActive) {
+                    setBackground(Color.YELLOW);
+                }
+                if (square.getBackground().equals(Color.YELLOW)) {
+                    square.setEnabled(false);
+                }
+                else if (square.hasPiece || square.getBackground().equals(Color.GREEN)
+                        || square.getBackground().equals(Color.RED)) {
                     square.setEnabled(true);
                 }
                 else {
@@ -61,6 +68,8 @@ public class Square extends JButton {
             this.hasPiece = true;
             this.piece = piece;
             this.possibleMoves = this.piece.getPossibleMoves();
+            this.conditionalMoves = this.piece.getConditionalMoves();
+
             try {
                 Image img = ImageIO.read(getClass().getResource(piece.getIconUrl()));
                 img = img.getScaledInstance(50, 50, Image.SCALE_DEFAULT);
@@ -94,6 +103,12 @@ public class Square extends JButton {
     public void setColor(Color color) {
         setBackground(color);
         this.color = color;
+    }
+
+    public void reset() {
+        isActive = false;
+        setBackground(this.color);
+        setEnabled(true);
     }
 
     public boolean isActive() {

@@ -71,6 +71,13 @@ public abstract class Piece {
         return this;
     }
 
+    public List<Position> getAllMoves() {
+        List<Position> allMoves = new ArrayList<>();
+        allMoves.addAll(this.possibleMoves);
+        allMoves.addAll(this.conditionalMoves);
+        return allMoves;
+    }
+
 
     // Todo: can change the return type
     public Piece move(String key) {
