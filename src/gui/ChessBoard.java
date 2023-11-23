@@ -33,7 +33,7 @@ public class ChessBoard extends JFrame {
                 isBlack = !isBlack;
             }
 
-            square.addActionListener(buttonAction());
+            square.addActionListener(squareAction());
 
             // Formatting one digit keys to two digit -> (1 => 01)
             square.setKey(String.format("%02d", key));
@@ -90,7 +90,7 @@ public class ChessBoard extends JFrame {
     }
 
 
-    private ActionListener buttonAction() {
+    private ActionListener squareAction() {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -100,6 +100,7 @@ public class ChessBoard extends JFrame {
                     Map<String, main.enums.Color> test = squares.stream().filter(a-> a.hasPiece())
                             .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece().getColor()));
                     activeSquare.getPiece().compareBoardWithPossibleMoves(test);
+                    cleanBoard();
                     setMovables(activeSquare);
                 }
 
@@ -133,18 +134,6 @@ public class ChessBoard extends JFrame {
 
     private void setMovables(Square square) {
         square.getPiece().getAllMoves().stream()
-                .forEach(position -> getSquareByKey(position.getKey()).setBackground(Color.GREEN));
+                .forEach(position -> getSquareByKey(position.getKey()).setMovable());
     }
-
-    private void movePiece(Square square) {
-        Square activeSquare = this.squares.stream()
-                .filter(sq -> sq.isActive())
-                .findFirst().get();
-        activeSquare.restBackGround();
-        activeSquare.setPiece(null);
-    }
-
-
-
-
 }

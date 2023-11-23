@@ -31,16 +31,14 @@ public class Square extends JButton {
                 Square square = ((Square) e.getSource());
                 if (square.isActive) {
                     setBackground(Color.YELLOW);
-                }
-                if (square.getBackground().equals(Color.YELLOW)) {
                     square.setEnabled(false);
                 }
-                else if (square.hasPiece || square.getBackground().equals(Color.GREEN)
-                        || square.getBackground().equals(Color.RED)) {
+                else if (!(square.hasPiece) && (square.getBackground().equals(Color.WHITE)
+                        || square.getBackground().equals(Color.DARK_GRAY))) {
+                    square.setEnabled(false);
+                }
+                else if (!(square.hasPiece) && square.getBackground().equals(Color.GREEN)) {
                     square.setEnabled(true);
-                }
-                else {
-                    square.setEnabled(false);
                 }
             }
         });
@@ -128,6 +126,11 @@ public class Square extends JButton {
     public Square restBackGround() {
         setBackground(this.color);
         return this;
+    }
+
+    public void setMovable() {
+        setBackground(Color.GREEN);
+        setEnabled(true);
     }
 
     @Override
