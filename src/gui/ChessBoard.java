@@ -97,10 +97,11 @@ public class ChessBoard extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Square activeSquare = ((Square) e.getSource());
 
-                if (activeSquare.hasPiece()) {
-                    Map<String, main.enums.Color> test = squares.stream().filter(a-> a.hasPiece())
+                if (activeSquare.hasPiece() && !activeSquare.getBackground().equals(Color.RED)) {
+                    Map<String, main.enums.Color> pieceMap = squares.parallelStream()
+                            .filter(a-> a.hasPiece())
                             .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece().getColor()));
-                    activeSquare.getPiece().compareBoardWithPossibleMoves(test);
+                    activeSquare.getPiece().compareBoardWithPossibleMoves(pieceMap);
                     cleanBoard();
                     setMovables(activeSquare);
                 }
@@ -111,7 +112,7 @@ public class ChessBoard extends JFrame {
                         .orElse(null);
 
                 // Moving a piece to a possible position.
-                if (activeSquare.getBackground().equals(Color.GREEN)) {
+                if (activeSquare.getBackground().equals(Color.GREEN) || activeSquare.getBackground().equals(Color.RED) ) {
                     activeSquare.setPiece(previousActiveSquare.getPiece());
                     activeSquare.getPiece().move(activeSquare.getKey());
                     previousActiveSquare.setPiece(null);
@@ -158,8 +159,7 @@ public class ChessBoard extends JFrame {
     }
 
     private void cleanBoard() {
-        squares.stream().filter(square -> square.getBackground().equals(Color.GREEN))
-                .forEach(square -> square.restBackGround());
+        squares.parallelStream().forEach(square -> square.restBackGround());
     }
 
     private void setMovables(Square square) {

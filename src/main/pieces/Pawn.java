@@ -38,9 +38,16 @@ public class Pawn extends Piece {
     @Override
     public void compareBoardWithPossibleMoves(Map<String, Color> pieceMap) {
         Color oppositeColor = this.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
-        List<Position> positionList = new ArrayList<>(this.getPossibleMoves());
+        List<Position> possibleMoves = new ArrayList<>(this.getPossibleMoves());
 
-        for (Position position : positionList) {
+        if (this.getConditionalMoves().size() > 0) {
+            List<Position> conditionalMoves = new ArrayList<>(this.getConditionalMoves());
+            conditionalMoves.parallelStream()
+                    .filter(move -> pieceMap.get(move.getKey()) != null)
+                    .forEach(move -> this.getConditionalMoves().remove(move));
+        }
+
+        for (Position position : possibleMoves) {
             if (pieceMap.get(position.getKey()) == null) {
                 if (this.getPosition().getX() != position.getX()) {
                     this.getPossibleMoves().remove(position);
@@ -50,7 +57,8 @@ public class Pawn extends Piece {
                 if (!(this.getPosition().getX() != position.getX())) {
                     this.getPossibleMoves().remove(position);
                 }
-            } else  {
+            }
+            else if (pieceMap.get(position.getKey()).equals(this.getColor())) {
                 this.getPossibleMoves().remove(position);
             }
         }
@@ -61,8 +69,14 @@ public class Pawn extends Piece {
         if (isFirstMove) {
             this.isFirstMove = false;
         }
+
+        if (Character.digit(key.charAt(1), 10) == 0 || Character.digit(key.charAt(1), 10) == 7) {
+            changeThePiece();
+        }
+
         this.getPosition().setX(Character.digit(key.charAt(0), 10))
                 .setY(Character.digit(key.charAt(1), 10));
+
         this.setPossibleMoves();
         return this;
     }
@@ -74,6 +88,12 @@ public class Pawn extends Piece {
             this.addConditionalMoves(possibleFirstMove());
         }
     }
+
+    private void changeThePiece() {
+        // Todo : Change the piece
+        System.out.println("Victory will be ours!");
+    }
+
 
     private Position possibleFirstMove() {
         // If it is white, it can move two square forward.

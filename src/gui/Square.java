@@ -40,6 +40,9 @@ public class Square extends JButton {
                 else if (!(square.hasPiece) && square.getBackground().equals(Color.GREEN)) {
                     square.setEnabled(true);
                 }
+                else if (square.hasPiece && square.getBackground().equals(Color.GREEN)) {
+                    square.setBackground(Color.RED);
+                }
             }
         });
     }
