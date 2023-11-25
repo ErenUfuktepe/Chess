@@ -7,6 +7,7 @@ import main.enums.PieceType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Piece {
     private PieceType pieceType;
@@ -344,5 +345,22 @@ public abstract class Piece {
             moves.add(new Position(this.position.getX() + nextPosition, this.position.getY() - nextPosition));
         }
         return moves;
+    }
+
+    protected boolean isMovable(Map<String, Piece> pieceMap, Position position, AtomicBoolean isBlocked) {
+        if (isBlocked.get()) {
+            return isBlocked.get();
+        }
+        if (pieceMap.get(position.getKey()) == null) {
+            return isBlocked.get();
+        }
+        else if (pieceMap.get(position.getKey()) != null) {
+            Color oppositeColor = this.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
+            isBlocked.set(true);
+            if (pieceMap.get(position.getKey()).getColor().equals(oppositeColor)) {
+                return false;
+            }
+        }
+        return isBlocked.get();
     }
 }

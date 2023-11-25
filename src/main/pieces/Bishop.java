@@ -30,48 +30,31 @@ public class Bishop extends Piece {
         // Check right forward move
         this.getPossibleMoves().stream()
                 .filter(position -> position.getX() > this.getPosition().getX() && position.getY() > this.getPosition().getY())
-                .filter(position -> isMovable(pieceMap, position, blocked))
+                .filter(position -> this.isMovable(pieceMap, position, blocked))
                 .forEach(move -> possibleMoves.remove(move));
 
         // Check left forward move
         blocked.set(false);
         this.getPossibleMoves().stream()
                 .filter(position -> position.getX() < this.getPosition().getX() && position.getY() > this.getPosition().getY())
-                .filter(position -> isMovable(pieceMap, position, blocked))
+                .filter(position -> this.isMovable(pieceMap, position, blocked))
                 .forEach(move -> possibleMoves.remove(move));
 
         // Check right backward move
         blocked.set(false);
         this.getPossibleMoves().stream()
                 .filter(position -> position.getX() > this.getPosition().getX() && position.getY() < this.getPosition().getY())
-                .filter(position -> isMovable(pieceMap, position, blocked))
+                .filter(position -> this.isMovable(pieceMap, position, blocked))
                 .forEach(move -> possibleMoves.remove(move));
 
         // Check left backward move
         blocked.set(false);
         this.getPossibleMoves().stream()
                 .filter(position -> position.getX() < this.getPosition().getX() && position.getY() < this.getPosition().getY())
-                .filter(position -> isMovable(pieceMap, position, blocked))
+                .filter(position -> this.isMovable(pieceMap, position, blocked))
                 .forEach(move -> possibleMoves.remove(move));
 
         return possibleMoves;
-    }
-
-    private boolean isMovable(Map<String, Piece> pieceMap, Position position, AtomicBoolean isBlocked) {
-        if (isBlocked.get()) {
-            return isBlocked.get();
-        }
-        if (pieceMap.get(position.getKey()) == null) {
-            return isBlocked.get();
-        }
-        else if (pieceMap.get(position.getKey()) != null) {
-            Color oppositeColor = this.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
-            isBlocked.set(true);
-            if (pieceMap.get(position.getKey()).getColor().equals(oppositeColor)) {
-                return false;
-            }
-        }
-        return isBlocked.get();
     }
 
     @Override
