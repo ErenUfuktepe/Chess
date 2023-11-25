@@ -101,7 +101,7 @@ public abstract class Piece {
     }
 
     protected void checkConditionalMoves() {
-        throw new UnsupportedOperationException();
+        return;
     }
 
     public List<Position> compareBoardWithPossibleMoves(Map<String, Piece> pieceMap) {
