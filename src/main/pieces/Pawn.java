@@ -7,9 +7,9 @@ import main.enums.PieceType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Pawn extends Piece {
-    private boolean isFirstMove = true;
 
     public Pawn(Color color){
         super(PieceType.PAWN, color);
@@ -21,53 +21,48 @@ public class Pawn extends Piece {
         }
     }
 
-    public boolean isFirstMove() {
-        return isFirstMove;
-    }
-
-    public Pawn setFirstMove(boolean firstMove) {
-        isFirstMove = firstMove;
-        return this;
-    }
-
     @Override
     public boolean canMoveBackwards() {
         return false;
     }
 
     @Override
-    public void compareBoardWithPossibleMoves(Map<String, Color> pieceMap) {
+    public List<Position> compareBoardWithPossibleMoves(Map<String, Piece> pieceMap) {
         Color oppositeColor = this.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
-        List<Position> possibleMoves = new ArrayList<>(this.getPossibleMoves());
 
-        if (this.getConditionalMoves().size() > 0) {
-            List<Position> conditionalMoves = new ArrayList<>(this.getConditionalMoves());
-            conditionalMoves.parallelStream()
-                    .filter(move -> pieceMap.get(move.getKey()) != null)
-                    .forEach(move -> this.getConditionalMoves().remove(move));
+        List<Position> possibleMoves = new ArrayList<>(this.getPossibleMoves());
+        List<Position> conditionalMoves = new ArrayList<>(this.getConditionalMoves());
+
+        if (conditionalMoves.size() > 0) {
+            conditionalMoves = conditionalMoves.parallelStream()
+                    .filter(move -> !(pieceMap.get(move.getKey()) != null))
+                    .collect(Collectors.toList());
         }
 
-        for (Position position : possibleMoves) {
+        for (Position position : this.getPossibleMoves()) {
             if (pieceMap.get(position.getKey()) == null) {
                 if (this.getPosition().getX() != position.getX()) {
-                    this.getPossibleMoves().remove(position);
+                    possibleMoves.remove(position);
                 }
             }
-            else if (pieceMap.get(position.getKey()).equals(oppositeColor)) {
+            else if (pieceMap.get(position.getKey()).getColor().equals(oppositeColor)) {
                 if (!(this.getPosition().getX() != position.getX())) {
-                    this.getPossibleMoves().remove(position);
+                    possibleMoves.remove(position);
                 }
             }
-            else if (pieceMap.get(position.getKey()).equals(this.getColor())) {
-                this.getPossibleMoves().remove(position);
+            else if (pieceMap.get(position.getKey()).getColor().equals(this.getColor())) {
+                possibleMoves.remove(position);
             }
         }
+
+        possibleMoves.addAll(conditionalMoves);
+        return possibleMoves;
     }
 
     @Override
     public Piece move(String key) {
-        if (isFirstMove) {
-            this.isFirstMove = false;
+        if (this.isFirstMove()) {
+            this.setFirstMove(false);
         }
 
         if (Character.digit(key.charAt(1), 10) == 0 || Character.digit(key.charAt(1), 10) == 7) {
@@ -84,7 +79,7 @@ public class Pawn extends Piece {
     @Override
     public void checkConditionalMoves() {
         // Can move two squares.
-        if (this.isFirstMove) {
+        if (this.isFirstMove()) {
             this.addConditionalMoves(possibleFirstMove());
         }
     }
@@ -103,9 +98,4 @@ public class Pawn extends Piece {
                 .setX(this.getPosition().getX())
                 .setY(this.getPosition().getY() + move);
     }
-
-
-
-
-
 }

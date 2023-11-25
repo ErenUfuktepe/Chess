@@ -1,6 +1,7 @@
 package gui;
 
 import main.Board;
+import main.Position;
 import main.pieces.Piece;
 
 import javax.swing.*;
@@ -98,12 +99,12 @@ public class ChessBoard extends JFrame {
                 Square activeSquare = ((Square) e.getSource());
 
                 if (activeSquare.hasPiece() && !activeSquare.getBackground().equals(Color.RED)) {
-                    Map<String, main.enums.Color> pieceMap = squares.parallelStream()
+                    Map<String, Piece> pieceMap = squares.parallelStream()
                             .filter(a-> a.hasPiece())
-                            .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece().getColor()));
-                    activeSquare.getPiece().compareBoardWithPossibleMoves(pieceMap);
+                            .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece()));
+                    List<Position> test = activeSquare.getPiece().compareBoardWithPossibleMoves(pieceMap);
                     cleanBoard();
-                    setMovables(activeSquare);
+                    setMovables(test);
                 }
 
                 Square previousActiveSquare = squares.stream()
@@ -112,7 +113,8 @@ public class ChessBoard extends JFrame {
                         .orElse(null);
 
                 // Moving a piece to a possible position.
-                if (activeSquare.getBackground().equals(Color.GREEN) || activeSquare.getBackground().equals(Color.RED) ) {
+                if (previousActiveSquare != null
+                        && (activeSquare.getBackground().equals(Color.GREEN) || activeSquare.getBackground().equals(Color.RED) )) {
                     activeSquare.setPiece(previousActiveSquare.getPiece());
                     activeSquare.getPiece().move(activeSquare.getKey());
                     previousActiveSquare.setPiece(null);
@@ -162,8 +164,8 @@ public class ChessBoard extends JFrame {
         squares.parallelStream().forEach(square -> square.restBackGround());
     }
 
-    private void setMovables(Square square) {
-        square.getPiece().getAllMoves().stream()
+    private void setMovables(List<Position> square) {
+        square.stream()
                 .forEach(position -> getSquareByKey(position.getKey()).setMovable());
     }
 }

@@ -15,7 +15,7 @@ public abstract class Piece {
     private String iconUrl;
     private List<Position> possibleMoves = new ArrayList<>();
     private List<Position> conditionalMoves = new ArrayList<>();
-
+    private boolean isFirstMove = true;
 
     public Piece(PieceType pieceType, Color color){
         this.color = color;
@@ -66,6 +66,15 @@ public abstract class Piece {
         return conditionalMoves;
     }
 
+    public boolean isFirstMove() {
+        return isFirstMove;
+    }
+
+    public Piece setFirstMove(boolean firstMove) {
+        isFirstMove = firstMove;
+        return this;
+    }
+
     public Piece addConditionalMoves(Position conditionalPosition) {
         this.conditionalMoves.add(conditionalPosition);
         return this;
@@ -95,7 +104,7 @@ public abstract class Piece {
         throw new UnsupportedOperationException();
     }
 
-    public void compareBoardWithPossibleMoves(Map<String, Color> pieceMap) {
+    public List<Position> compareBoardWithPossibleMoves(Map<String, Piece> pieceMap) {
         throw new UnsupportedOperationException();
     }
 
@@ -162,7 +171,7 @@ public abstract class Piece {
             return moves;
         }
 
-        for (int nextPosition = this.position.getY(); nextPosition < 8; nextPosition++) {
+        for (int nextPosition = this.position.getY() + 1; nextPosition < 8; nextPosition++) {
             moves.add(new Position(this.position.getX(), nextPosition));
         }
         return moves;
@@ -182,7 +191,7 @@ public abstract class Piece {
             return moves;
         }
 
-        for (int nextPosition = this.position.getY() ;nextPosition >= 0; nextPosition--) {
+        for (int nextPosition = this.position.getY() - 1;nextPosition >= 0; nextPosition--) {
             moves.add(new Position(this.position.getX(), nextPosition));
         }
         return moves;
@@ -202,7 +211,7 @@ public abstract class Piece {
             return moves;
         }
 
-        for (int nextPosition = this.position.getX() ;nextPosition < 8; nextPosition++) {
+        for (int nextPosition = this.position.getX() + 1; nextPosition < 8; nextPosition++) {
             moves.add(new Position(nextPosition, this.position.getY()));
         }
         return moves;
@@ -222,7 +231,7 @@ public abstract class Piece {
             return moves;
         }
 
-        for (int nextPosition = this.position.getX() ;nextPosition >= 0; nextPosition--) {
+        for (int nextPosition = this.position.getX() -1; nextPosition >= 0; nextPosition--) {
             moves.add(new Position(nextPosition, this.position.getY()));
         }
         return moves;
