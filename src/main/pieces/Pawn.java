@@ -14,12 +14,6 @@ public class Pawn extends Piece {
 
     public Pawn(Color color){
         super(PieceType.PAWN, color);
-        if(this.getColor().equals(Color.WHITE)) {
-            this.setIconUrl("../resources/images/pawn_white.png");
-        }
-        else {
-            this.setIconUrl("../resources/images/pawn_black.png");
-        }
         this.setMovable(new MoveL());
     }
 

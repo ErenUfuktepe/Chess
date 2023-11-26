@@ -14,7 +14,6 @@ public abstract class Piece {
     private PieceType pieceType;
     private Position position = new Position();
     private Color color;
-    private String iconUrl;
     private List<Position> possibleMoves = new ArrayList<>();
     private List<Position> conditionalMoves = new ArrayList<>();
     private boolean isFirstMove = true;
@@ -54,11 +53,7 @@ public abstract class Piece {
     }
 
     public String getIconUrl() {
-        return iconUrl;
-    }
-
-    public void setIconUrl(String iconUrl) {
-        this.iconUrl = iconUrl;
+        return "../resources/images/" + this.getColor().toString().toLowerCase() + "/" + this.getClass().getSimpleName().toLowerCase() + ".png";
     }
 
     public List<Position> getPossibleMoves() {

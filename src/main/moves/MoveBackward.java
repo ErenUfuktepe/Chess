@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MoveBackward implements Movable{
-
     @Override
     public List<Position> getPossiblePositions(Position currentPosition) {
         List<Position> possibleMoves = new ArrayList<>();

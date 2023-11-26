@@ -3,6 +3,9 @@ package gui;
 import main.Board;
 import main.Position;
 import main.pieces.Piece;
+import main.player.BlackPlayer;
+import main.player.Player;
+import main.player.WhitePlayer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +18,8 @@ import java.util.stream.Collectors;
 public class ChessBoard extends JFrame {
     private static final JPanel panel = new JPanel();
     private final List<Square> squares = new ArrayList<>();
+    private Player player1 = new WhitePlayer();
+    private Player player2 = new BlackPlayer();
     private final Board board = new Board();
 
     public ChessBoard() {
@@ -76,19 +81,15 @@ public class ChessBoard extends JFrame {
     }
 
     public void build() {
-        this.board.buildWhitePlayer()
-                .buildBlackPlayer();
+        this.player1.setupPlayer();
+        this.player2.setupPlayer();
 
-        this.board.placeWhitePlayerPieces();
-        this.board.placeBlackPlayerPieces();
-
-        this.board.getWhitePlayer().getPieces().stream()
+        this.player1.getPieces().stream()
+                .forEach(piece -> mapPiecesWithSquares(piece));
+        this.player2.getPieces().stream()
                 .forEach(piece -> mapPiecesWithSquares(piece));
 
-        this.board.getBlackPlayer().getPieces().stream()
-                .forEach(piece -> mapPiecesWithSquares(piece));
-
-        changeByPlayerTurn();
+        //changeByPlayerTurn();
     }
 
 

@@ -3,6 +3,8 @@ package main;
 import gui.ChessBoard;
 import main.enums.Color;
 import main.pieces.Pawn;
+import main.player.Player;
+import main.player.WhitePlayer;
 
 public class Main {
 
@@ -10,7 +12,7 @@ public class Main {
         ChessBoard chessBoard = new ChessBoard();
         chessBoard.build();
 
-
+/*
         Pawn piece = new Pawn(Color.WHITE);
         //King piece = new King(Color.WHITE);
 
@@ -18,6 +20,8 @@ public class Main {
         piece.getMovable().getPossiblePositions(position)
                 .stream()
                 .forEach(a -> System.out.println(a.getKey()));
+
+                */
     }
 
 }
