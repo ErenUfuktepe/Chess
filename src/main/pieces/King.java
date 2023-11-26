@@ -2,7 +2,7 @@ package main.pieces;
 
 import main.Position;
 import main.enums.Color;
-import main.enums.PieceType;
+import main.moves.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class King extends Piece {
 
     public King(Color color) {
-        super(PieceType.KING, color);
+        super(color);
+        this.addMovable(new MoveForward())
+                .addMovable(new MoveBackward())
+                .addMovable(new MoveLeft())
+                .addMovable(new MoveRight())
+                .addMovable(new MoveLeftBackward())
+                .addMovable(new MoveLeftForward())
+                .addMovable(new MoveRightBackward())
+                .addMovable(new MoveRightForward());
     }
 
     @Override
@@ -86,7 +94,6 @@ public class King extends Piece {
         this.getPosition().setX(Character.digit(key.charAt(0), 10))
                 .setY(Character.digit(key.charAt(1), 10));
 
-        this.setPossibleMoves();
         return this;
     }
 }

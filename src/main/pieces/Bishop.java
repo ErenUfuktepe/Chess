@@ -2,7 +2,7 @@ package main.pieces;
 
 import main.Position;
 import main.enums.Color;
-import main.enums.PieceType;
+import main.moves.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Bishop extends Piece {
 
     public Bishop(Color color){
-        super(PieceType.BISHOP, color);
+        super(color);
+        this.addMovable(new MoveLeftBackward())
+                .addMovable(new MoveLeftForward())
+                .addMovable(new MoveRightBackward())
+                .addMovable(new MoveRightForward());
     }
 
     @Override
@@ -58,7 +62,6 @@ public class Bishop extends Piece {
         this.getPosition().setX(Character.digit(key.charAt(0), 10))
                 .setY(Character.digit(key.charAt(1), 10));
 
-        this.setPossibleMoves();
         return this;
     }
 }

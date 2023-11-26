@@ -1,11 +1,8 @@
 package main;
 
-import main.pieces.Piece;
-
 public class Position {
     private int x;
     private int y;
-    private Piece piece;
 
     public Position() {
 
@@ -31,15 +28,6 @@ public class Position {
 
     public Position setY(int y) {
         this.y = y;
-        return this;
-    }
-
-    public Piece getPiece() {
-        return piece;
-    }
-
-    public Position setPiece(Piece piece) {
-        this.piece = piece;
         return this;
     }
 

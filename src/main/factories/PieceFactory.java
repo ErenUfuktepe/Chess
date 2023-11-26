@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PieceFactory {
-    private static final int NUMBER_OF_KING = 1;
-    private static final int NUMBER_OF_QUEEN = 1;
     private static final int NUMBER_OF_BISHOP = 2;
     private static final int NUMBER_OF_KNIGHT = 2;
     private static final int NUMBER_OF_ROOK = 2;
@@ -87,44 +85,6 @@ public class PieceFactory {
         bishopList.stream().forEach(piece -> piece.setPosition(counter.getAndAdd(3), yAxis));
 
         return bishopList;
-    }
-
-
-
-    public List<Piece> buildPiecesForPlayer(Color color) {
-        List<Piece> pieces = new ArrayList<>();
-
-        // Create Pawns.
-        for (int index = 0; index < NUMBER_OF_PAWN; index++) {
-            pieces.add(new Pawn(color));
-        }
-
-        // Create Rooks.
-        for (int index = 0; index < NUMBER_OF_ROOK; index++) {
-            pieces.add(new Rook(color));
-        }
-
-        // Create Knights.
-        for (int index = 0; index < NUMBER_OF_KNIGHT; index++) {
-            pieces.add(new Knight(color));
-        }
-
-        // Create Bishops.
-        for (int index = 0; index < NUMBER_OF_BISHOP; index++) {
-            pieces.add(new Bishop(color));
-        }
-
-        // Create the Queen.
-        for (int index = 0; index < NUMBER_OF_QUEEN; index++) {
-            pieces.add(new Queen(color));
-        }
-
-        // Create the King.
-        for (int index = 0; index < NUMBER_OF_KING; index++) {
-            pieces.add(new King(color));
-        }
-
-        return pieces;
     }
 
     public List<Piece> createPiecesForPlayer(Color color) {

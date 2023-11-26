@@ -2,7 +2,10 @@ package main.pieces;
 
 import main.Position;
 import main.enums.Color;
-import main.enums.PieceType;
+import main.moves.MoveBackward;
+import main.moves.MoveForward;
+import main.moves.MoveLeft;
+import main.moves.MoveRight;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +15,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Rook extends Piece {
 
     public Rook(Color color) {
-        super(PieceType.ROOK, color);
+        super(color);
+        this.addMovable(new MoveForward())
+                .addMovable(new MoveBackward())
+                .addMovable(new MoveLeft())
+                .addMovable(new MoveRight());
     }
 
     @Override
@@ -60,7 +67,6 @@ public class Rook extends Piece {
         this.getPosition().setX(Character.digit(key.charAt(0), 10))
                 .setY(Character.digit(key.charAt(1), 10));
 
-        this.setPossibleMoves();
         return this;
     }
 

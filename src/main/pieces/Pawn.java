@@ -2,7 +2,6 @@ package main.pieces;
 
 import main.Position;
 import main.enums.Color;
-import main.enums.PieceType;
 import main.moves.*;
 
 import java.util.ArrayList;
@@ -13,13 +12,17 @@ import java.util.stream.Collectors;
 public class Pawn extends Piece {
 
     public Pawn(Color color){
-        super(PieceType.PAWN, color);
-        this.setMovable(new MoveL());
-    }
-
-    @Override
-    public boolean canMoveBackwards() {
-        return false;
+        super(color);
+        if (color.equals(Color.WHITE)) {
+            this.addMovable(new MoveForward())
+                    .addMovable(new MoveRightForward())
+                    .addMovable(new MoveLeftForward());
+        }
+        else {
+            this.addMovable(new MoveBackward())
+                    .addMovable(new MoveRightBackward())
+                    .addMovable(new MoveLeftBackward());
+        }
     }
 
     @Override
@@ -68,7 +71,6 @@ public class Pawn extends Piece {
         this.getPosition().setX(Character.digit(key.charAt(0), 10))
                 .setY(Character.digit(key.charAt(1), 10));
 
-        this.setPossibleMoves();
         return this;
     }
 
