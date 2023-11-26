@@ -3,6 +3,7 @@ package main.pieces;
 import main.Position;
 import main.enums.Color;
 import main.enums.PieceType;
+import main.moves.Movable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ public abstract class Piece {
     private List<Position> possibleMoves = new ArrayList<>();
     private List<Position> conditionalMoves = new ArrayList<>();
     private boolean isFirstMove = true;
+    private Movable movable;
 
     public Piece(PieceType pieceType, Color color){
         this.color = color;
@@ -362,5 +364,13 @@ public abstract class Piece {
             }
         }
         return isBlocked.get();
+    }
+
+    public Movable getMovable() {
+        return movable;
+    }
+
+    public void setMovable(Movable movable) {
+        this.movable = movable;
     }
 }

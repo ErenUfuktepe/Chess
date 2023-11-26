@@ -46,4 +46,8 @@ public class Position {
     public String getKey(){
         return String.valueOf(this.x) + String.valueOf(this.y);
     }
+
+    public boolean isMovable() {
+        return !(this.x > 7 || this.x < 0 || this.y > 7 || this.y < 0);
+    }
 }

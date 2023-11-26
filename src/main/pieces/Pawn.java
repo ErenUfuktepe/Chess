@@ -3,6 +3,7 @@ package main.pieces;
 import main.Position;
 import main.enums.Color;
 import main.enums.PieceType;
+import main.moves.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class Pawn extends Piece {
         else {
             this.setIconUrl("../resources/images/pawn_black.png");
         }
+        this.setMovable(new MoveL());
     }
 
     @Override
