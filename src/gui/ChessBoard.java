@@ -1,6 +1,5 @@
 package gui;
 
-import main.Board;
 import main.Position;
 import main.pieces.Piece;
 import main.player.BlackPlayer;
@@ -11,8 +10,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class ChessBoard extends JFrame {
@@ -20,7 +21,6 @@ public class ChessBoard extends JFrame {
     private final List<Square> squares = new ArrayList<>();
     private Player player1 = new WhitePlayer();
     private Player player2 = new BlackPlayer();
-    private final Board board = new Board();
 
     public ChessBoard() {
         int xAxis = 0;
@@ -88,8 +88,6 @@ public class ChessBoard extends JFrame {
                 .forEach(piece -> mapPiecesWithSquares(piece));
         this.player2.getPieces().stream()
                 .forEach(piece -> mapPiecesWithSquares(piece));
-
-        //changeByPlayerTurn();
     }
 
 
@@ -120,8 +118,6 @@ public class ChessBoard extends JFrame {
                     activeSquare.getPiece().move(activeSquare.getKey());
                     previousActiveSquare.setPiece(null);
                     cleanBoard();
-                    board.changePlayerTurn();
-                    changeByPlayerTurn();
                 }
                 else {
                     activeSquare.setActive(true);
@@ -132,33 +128,6 @@ public class ChessBoard extends JFrame {
                 }
             }
         };
-    }
-
-    private void changeByPlayerTurn() {
-        if (this.board.getWhitePlayer().isPlayerTurn()) {
-            setWhitePlayerTurn();
-        }
-        else {
-            setBlackPlayerTurn();
-        }
-    }
-
-    private void setWhitePlayerTurn() {
-        this.squares.stream()
-                .filter(square -> (square.hasPiece() && square.getPiece().getColor().equals(main.enums.Color.BLACK)))
-                .forEach(square -> square.setEnabled(false));
-        this.squares.stream()
-                .filter(square -> (square.hasPiece() && square.getPiece().getColor().equals(main.enums.Color.WHITE)))
-                .forEach(square -> square.setEnabled(true));
-    }
-
-    private void setBlackPlayerTurn() {
-        this.squares.stream()
-                .filter(square -> (square.hasPiece() && square.getPiece().getColor().equals(main.enums.Color.WHITE)))
-                .forEach(square -> square.setEnabled(false));
-        this.squares.stream()
-                .filter(square -> (square.hasPiece() && square.getPiece().getColor().equals(main.enums.Color.BLACK)))
-                .forEach(square -> square.setEnabled(true));
     }
 
     private void cleanBoard() {
