@@ -6,7 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MoveL implements Movable{
+public class MoveL implements Movable {
+    @Override
+    public Position getPossiblePosition(Position currentPosition) {
+        throw new UnsupportedOperationException("Unsupported L move.");
+    }
+
     @Override
     public List<Position> getPossiblePositions(Position currentPosition) {
         List<Position> possibleMoves = new ArrayList<>();
@@ -28,5 +33,10 @@ public class MoveL implements Movable{
             }
         });
         return possibleMoves;
+    }
+
+    @Override
+    public boolean isDiagonal() {
+        return false;
     }
 }

@@ -14,7 +14,7 @@ public abstract class Piece {
     private Color color;
     private List<Position> conditionalMoves = new ArrayList<>();
     private boolean isFirstMove = true;
-    private List<Movable> movable = new ArrayList<>();
+    private List<Movable> movables = new ArrayList<>();
 
     public Piece(Color color){
         this.color = color;
@@ -43,8 +43,18 @@ public abstract class Piece {
         return "../resources/images/" + this.getColor().toString().toLowerCase() + "/" + this.getClass().getSimpleName().toLowerCase() + ".png";
     }
 
+    public List<Position> getPossibleMoves(Map<String, Piece> pieceMap) {
+        List<Position> possibleMoves = new ArrayList<>();
+        this.movables.parallelStream()
+                .forEach(movable -> possibleMoves.addAll(movable.getPossiblePositions(this.position)));
+        return possibleMoves;
+    }
+
     public List<Position> getPossibleMoves() {
-        return new ArrayList<>();
+        List<Position> possibleMoves = new ArrayList<>();
+        this.movables.parallelStream()
+                .forEach(movable -> possibleMoves.addAll(movable.getPossiblePositions(this.position)));
+        return possibleMoves;
     }
 
     public List<Position> getConditionalMoves() {
@@ -79,39 +89,58 @@ public abstract class Piece {
         return this;
     }
 
-    protected void checkConditionalMoves() {
-        return;
+    protected boolean isMovable(Movable movable, Map<String, Piece> pieceMap) {
+        Position possibleMove = movable.getPossiblePosition(this.getPosition());
+        if (possibleMove == null) {
+            return false;
+        }
+
+        if (pieceMap.get(possibleMove.getKey()) == null) {
+            if (movable.isDiagonal()) {
+                return false;
+            }
+            return true;
+        }
+        else {
+            boolean isSameColor = pieceMap.get(possibleMove.getKey()).getColor().equals(this.getColor());
+            if (!isSameColor && movable.isDiagonal()) {
+                return true;
+            }
+            return false;
+        }
     }
-
-    public List<Position> compareBoardWithPossibleMoves(Map<String, Piece> pieceMap) {
-        throw new UnsupportedOperationException();
-    }
-
-
 
     protected boolean isMovable(Map<String, Piece> pieceMap, Position position, AtomicBoolean isBlocked) {
         if (isBlocked.get()) {
-            return isBlocked.get();
+            return false;
         }
         if (pieceMap.get(position.getKey()) == null) {
-            return isBlocked.get();
+            return true;
         }
         else if (pieceMap.get(position.getKey()) != null) {
-            Color oppositeColor = this.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE;
             isBlocked.set(true);
-            if (pieceMap.get(position.getKey()).getColor().equals(oppositeColor)) {
+            if (!pieceMap.get(position.getKey()).getColor().equals(this.getColor())) {
+                return true;
+            } else {
                 return false;
             }
         }
-        return isBlocked.get();
+        return true;
+    }
+
+    protected boolean isMovable(Position possiblePosition, Map<String, Piece> pieceMap) {
+        if (pieceMap.get(possiblePosition.getKey()) == null) {
+            return true;
+        }
+        return !pieceMap.get(possiblePosition.getKey()).getColor().equals(this.getColor()) ? true : false;
     }
 
     public List<Movable> getMovable() {
-        return movable;
+        return movables;
     }
 
     public Piece addMovable(Movable movable) {
-        this.movable.add(movable);
+        this.movables.add(movable);
         return this;
     }
 }

@@ -101,7 +101,9 @@ public class ChessBoard extends JFrame {
                     Map<String, Piece> pieceMap = squares.parallelStream()
                             .filter(a-> a.hasPiece())
                             .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece()));
-                    List<Position> test = activeSquare.getPiece().compareBoardWithPossibleMoves(pieceMap);
+                    List<Position> test = activeSquare.getPiece().getPossibleMoves(pieceMap);
+                    //List<Position> test = activeSquare.getPiece().getPossibleMoves();
+                    //List<Position> test = activeSquare.getPiece().compareBoardWithPossibleMoves(pieceMap);
                     cleanBoard();
                     setMovables(test);
                 }
@@ -136,6 +138,7 @@ public class ChessBoard extends JFrame {
 
     private void setMovables(List<Position> square) {
         square.stream()
+                .filter(position -> position != null)
                 .forEach(position -> getSquareByKey(position.getKey()).setMovable());
     }
 }

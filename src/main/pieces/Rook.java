@@ -2,10 +2,7 @@ package main.pieces;
 
 import main.Position;
 import main.enums.Color;
-import main.moves.MoveBackward;
-import main.moves.MoveForward;
-import main.moves.MoveLeft;
-import main.moves.MoveRight;
+import main.moves.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,41 +20,18 @@ public class Rook extends Piece {
     }
 
     @Override
-    public List<Position> compareBoardWithPossibleMoves(Map<String, Piece> pieceMap) {
-        List<Position> possibleMoves = new ArrayList<>(this.getPossibleMoves());
-        AtomicBoolean blocked = new AtomicBoolean(false);
+    public List<Position> getPossibleMoves(Map<String, Piece> pieceMap) {
+        List<Position> possibleMoves = new ArrayList<>();
 
-        // Check right move
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() > this.getPosition().getX() && position.getY() == this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check forward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getY() > this.getPosition().getY() && position.getX() == this.getPosition().getX())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check left move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() < this.getPosition().getX() && position.getY() == this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check backward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getY() < this.getPosition().getY() && position.getX() == this.getPosition().getX())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
+        for (Movable movable : this.getMovable()) {
+            AtomicBoolean isBlocked = new AtomicBoolean(false);
+            List<Position> positionList = movable.getPossiblePositions(this.getPosition());
+            positionList.stream()
+                    .filter(position -> this.isMovable(pieceMap, position, isBlocked))
+                    .forEach(position -> possibleMoves.add(position));
+        }
         return possibleMoves;
     }
-
-
 
     @Override
     public Piece move(String key) {
@@ -68,14 +42,6 @@ public class Rook extends Piece {
                 .setY(Character.digit(key.charAt(1), 10));
 
         return this;
-    }
-
-    @Override
-    public void checkConditionalMoves() {
-        // Can move two squares.
-        if (this.isFirstMove()) {
-            // Todo: Castling
-        }
     }
 
 }

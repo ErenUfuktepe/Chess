@@ -7,7 +7,6 @@ import main.moves.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class King extends Piece {
 
@@ -24,66 +23,31 @@ public class King extends Piece {
     }
 
     @Override
-    public List<Position> compareBoardWithPossibleMoves(Map<String, Piece> pieceMap) {
-        List<Position> possibleMoves = new ArrayList<>(this.getPossibleMoves());
-        AtomicBoolean blocked = new AtomicBoolean(false);
-
-        // Check right forward move
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() > this.getPosition().getX() && position.getY() > this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check left forward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() < this.getPosition().getX() && position.getY() > this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check right backward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() > this.getPosition().getX() && position.getY() < this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check left backward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() < this.getPosition().getX() && position.getY() < this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-
-        // Check right move
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() > this.getPosition().getX() && position.getY() == this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check forward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getY() > this.getPosition().getY() && position.getX() == this.getPosition().getX())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check left move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() < this.getPosition().getX() && position.getY() == this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check backward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getY() < this.getPosition().getY() && position.getX() == this.getPosition().getX())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
+    public List<Position> getPossibleMoves(Map<String, Piece> pieceMap) {
+        List<Position> possibleMoves = new ArrayList<>();
+        this.getMovable().parallelStream()
+                .filter(movable -> isMovable(movable, pieceMap))
+                .forEach(movable -> possibleMoves.add(movable.getPossiblePosition(this.getPosition())));
         return possibleMoves;
+    }
+
+    @Override
+    protected boolean isMovable(Movable movable, Map<String, Piece> pieceMap) {
+        Position possibleMove = movable.getPossiblePosition(this.getPosition());
+        if (possibleMove == null) {
+            return false;
+        }
+
+        if (pieceMap.get(possibleMove.getKey()) == null) {
+            return true;
+        }
+        else {
+            boolean isSameColor = pieceMap.get(possibleMove.getKey()).getColor().equals(this.getColor());
+            if (!isSameColor && movable.isDiagonal()) {
+                return true;
+            }
+            return false;
+        }
     }
 
     @Override

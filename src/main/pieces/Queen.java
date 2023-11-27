@@ -23,67 +23,17 @@ public class Queen extends Piece {
                 .addMovable(new MoveRightForward());
     }
 
-
     @Override
-    public List<Position> compareBoardWithPossibleMoves(Map<String, Piece> pieceMap) {
-        List<Position> possibleMoves = new ArrayList<>(this.getPossibleMoves());
-        AtomicBoolean blocked = new AtomicBoolean(false);
+    public List<Position> getPossibleMoves(Map<String, Piece> pieceMap) {
+        List<Position> possibleMoves = new ArrayList<>();
 
-        // Check right forward move
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() > this.getPosition().getX() && position.getY() > this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check left forward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() < this.getPosition().getX() && position.getY() > this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check right backward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() > this.getPosition().getX() && position.getY() < this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check left backward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() < this.getPosition().getX() && position.getY() < this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-
-        // Check right move
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() > this.getPosition().getX() && position.getY() == this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check forward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getY() > this.getPosition().getY() && position.getX() == this.getPosition().getX())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check left move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getX() < this.getPosition().getX() && position.getY() == this.getPosition().getY())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
-        // Check backward move
-        blocked.set(false);
-        this.getPossibleMoves().stream()
-                .filter(position -> position.getY() < this.getPosition().getY() && position.getX() == this.getPosition().getX())
-                .filter(position -> this.isMovable(pieceMap, position, blocked))
-                .forEach(move -> possibleMoves.remove(move));
-
+        for (Movable movable : this.getMovable()) {
+            AtomicBoolean isBlocked = new AtomicBoolean(false);
+            List<Position> positionList = movable.getPossiblePositions(this.getPosition());
+            positionList.stream()
+                    .filter(position -> this.isMovable(pieceMap, position, isBlocked))
+                    .forEach(position -> possibleMoves.add(position));
+        }
         return possibleMoves;
     }
 
