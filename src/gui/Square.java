@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -139,11 +138,6 @@ public class Square extends JButton {
     @Override
     public void addActionListener(ActionListener l) {
         super.addActionListener(l);
-    }
-
-    protected void swapPieces(Square to) {
-        to.setPiece(this.piece);
-        this.setPiece(null);
     }
 
     @Override

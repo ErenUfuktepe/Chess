@@ -37,7 +37,6 @@ public class King extends Piece {
         if (possibleMove == null) {
             return false;
         }
-
         if (pieceMap.get(possibleMove.getKey()) == null) {
             return true;
         }
