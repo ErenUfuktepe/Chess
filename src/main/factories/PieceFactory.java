@@ -1,10 +1,10 @@
 package main.factories;
 
 import main.pieces.Piece;
-import main.enums.Color;
 import main.enums.PieceType;
 import main.pieces.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

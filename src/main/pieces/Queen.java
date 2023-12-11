@@ -1,9 +1,9 @@
 package main.pieces;
 
 import main.Position;
-import main.enums.Color;
 import main.moves.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

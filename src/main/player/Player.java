@@ -1,9 +1,9 @@
 package main.player;
 
-import main.enums.Color;
 import main.factories.PieceFactory;
 import main.pieces.Piece;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +12,10 @@ public abstract class Player {
     private boolean isTurn;
     private Color color;
     private static final PieceFactory pieceFactory = new PieceFactory();
+
+    public Player(Color color) {
+        this.color = color;
+    }
 
     public List<Piece> getPieces() {
         return pieces;

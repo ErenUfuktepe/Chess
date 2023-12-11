@@ -1,9 +1,9 @@
 package main.pieces;
 
 import main.Position;
-import main.enums.Color;
 import main.moves.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +35,17 @@ public class Pawn extends Piece {
     @Override
     public List<Position> getPossibleMoves(Map<String, Piece> pieceMap) {
         List<Position> possibleMoves = new ArrayList<>();
+        int rule = this.getColor().equals(Color.WHITE) ? 2: -2;
+
         this.getMovable().parallelStream()
                 .filter(movable -> isMovable(movable, pieceMap))
                 .forEach(movable -> possibleMoves.add(movable.getPossiblePosition(this.getPosition())));
+
+        Position firstMove = new Position(this.getPosition().getX(), this.getPosition().getY() + rule);
+        if (isFirstMove() && pieceMap.get(firstMove.getKey()) == null && possibleMoves.size() > 0) {
+            possibleMoves.add(firstMove);
+        }
+
         return possibleMoves;
     }
 

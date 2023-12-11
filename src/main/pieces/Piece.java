@@ -1,10 +1,11 @@
 package main.pieces;
 
 import main.Position;
-import main.enums.Color;
 import main.moves.Movable;
 
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,7 +13,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Piece {
     private Position position = new Position();
     private Color color;
-    private List<Position> conditionalMoves = new ArrayList<>();
     private boolean isFirstMove = true;
     private List<Movable> movables = new ArrayList<>();
 
@@ -30,6 +30,14 @@ public abstract class Piece {
         return this;
     }
 
+    public Piece setPosition(String key) {
+        int x = Character.digit(key.charAt(0), 10);
+        int y = Character.digit(key.charAt(1), 10);
+        this.position.setX(x)
+                .setY(y);
+        return this;
+    }
+
     public Color getColor() {
         return color;
     }
@@ -40,7 +48,17 @@ public abstract class Piece {
     }
 
     public String getIconUrl() {
-        return "../resources/images/" + this.getColor().toString().toLowerCase() + "/" + this.getClass().getSimpleName().toLowerCase() + ".png";
+        String color = this.color.equals(Color.WHITE) ? "white" : "black";
+        return "../resources/images/" + color + "/" + this.getClass().getSimpleName().toLowerCase() + ".png";
+    }
+
+    public List<Position> getMoves(Map<String, Piece> pieceMap) {
+        List<Position> allMoves = this.getPossibleMoves(pieceMap);
+        return allMoves;
+    }
+
+    public Map<Position, Position> getSpecialMoves(Map<String, Piece> pieceMap) {
+        return new HashMap<>();
     }
 
     public List<Position> getPossibleMoves(Map<String, Piece> pieceMap) {
@@ -57,10 +75,6 @@ public abstract class Piece {
         return possibleMoves;
     }
 
-    public List<Position> getConditionalMoves() {
-        return conditionalMoves;
-    }
-
     public boolean isFirstMove() {
         return isFirstMove;
     }
@@ -69,18 +83,6 @@ public abstract class Piece {
         isFirstMove = firstMove;
         return this;
     }
-
-    public Piece addConditionalMoves(Position conditionalPosition) {
-        this.conditionalMoves.add(conditionalPosition);
-        return this;
-    }
-
-    public List<Position> getAllMoves() {
-        List<Position> allMoves = new ArrayList<>();
-        allMoves.addAll(this.conditionalMoves);
-        return allMoves;
-    }
-
 
     // Todo: can change the return type
     public Piece move(String key) {

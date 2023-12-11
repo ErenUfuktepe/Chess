@@ -1,10 +1,10 @@
 package main.player;
 
-import main.enums.Color;
+
+import java.awt.*;
 
 public class WhitePlayer extends Player {
     public WhitePlayer() {
-        super();
-        this.setColor(Color.WHITE);
+        super(Color.WHITE);
     }
 }

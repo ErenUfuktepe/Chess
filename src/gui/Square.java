@@ -1,49 +1,23 @@
 package gui;
 
-import main.Position;
 import main.pieces.Piece;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Square extends JButton {
     private Color color;
     private String key;
     private Piece piece;
-    private boolean isActive;
+    private boolean isActive = false;
     private boolean hasPiece = false;
-    private List<Position> possibleMoves;
-    private List<Position> conditionalMoves = new ArrayList<>();
 
     public Square() {
-        super.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                Square square = ((Square) e.getSource());
-                if (square.isActive) {
-                    setBackground(Color.YELLOW);
-                    square.setEnabled(false);
-                }
-                else if (!(square.hasPiece) && (square.getBackground().equals(Color.WHITE)
-                        || square.getBackground().equals(Color.DARK_GRAY))) {
-                    square.setEnabled(false);
-                }
-                else if (!(square.hasPiece) && square.getBackground().equals(Color.GREEN)) {
-                    square.setEnabled(true);
-                }
-                else if (square.hasPiece && square.getBackground().equals(Color.GREEN)) {
-                    square.setBackground(Color.RED);
-                }
-            }
-        });
+
     }
 
     public String getKey() {
@@ -67,8 +41,6 @@ public class Square extends JButton {
         else {
             this.hasPiece = true;
             this.piece = piece;
-            this.possibleMoves = this.piece.getPossibleMoves();
-            this.conditionalMoves = this.piece.getConditionalMoves();
 
             try {
                 Image img = ImageIO.read(getClass().getResource(piece.getIconUrl()));
@@ -79,23 +51,6 @@ public class Square extends JButton {
             }
         }
     }
-
-    public List<Position> getPossibleMoves() {
-        return possibleMoves;
-    }
-
-    public void setPossibleMoves(List<Position> possibleMoves) {
-        this.possibleMoves = possibleMoves;
-    }
-
-    public List<Position> getConditionalMoves() {
-        return conditionalMoves;
-    }
-
-    public void setConditionalMoves(List<Position> conditionalMoves) {
-        this.conditionalMoves = conditionalMoves;
-    }
-
     public Color getColor() {
         return color;
     }
@@ -105,19 +60,15 @@ public class Square extends JButton {
         this.color = color;
     }
 
-    public void reset() {
-        isActive = false;
-        setBackground(this.color);
-        setEnabled(true);
-    }
-
     public boolean isActive() {
         return isActive;
     }
 
     public Square setActive(boolean active) {
-        isActive = active;
+        this.isActive = active;
         setEnabled(!active);
+        Color color = active ? Color.YELLOW : this.color;
+        this.setBackground(color);
         return this;
     }
 
@@ -125,15 +76,25 @@ public class Square extends JButton {
         return this.hasPiece;
     }
 
-    public Square restBackGround() {
+    public Square reset() {
         setBackground(this.color);
         return this;
     }
 
-    public void setMovable() {
-        setBackground(Color.GREEN);
-        setEnabled(true);
+
+    public boolean isMoved() {
+        if (this.hasPiece) {
+            return !this.piece.getPosition().getKey().equals(this.key);
+        }
+        return false;
     }
+
+    public Square makeMovable(Color color) {
+        setBackground(color);
+        setEnabled(true);
+        return this;
+    }
+
 
     @Override
     public void addActionListener(ActionListener l) {
@@ -141,7 +102,7 @@ public class Square extends JButton {
     }
 
     @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        super.addPropertyChangeListener(listener);
+    public void addChangeListener(ChangeListener l) {
+        super.addChangeListener(l);
     }
 }
