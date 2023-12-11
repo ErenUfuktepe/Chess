@@ -84,13 +84,6 @@ public abstract class Piece {
         return this;
     }
 
-    // Todo: can change the return type
-    public Piece move(String key) {
-        this.position.setX(Character.digit(key.charAt(0), 10))
-                .setY(Character.digit(key.charAt(1), 10));
-        return this;
-    }
-
     protected boolean isMovable(Movable movable, Map<String, Piece> pieceMap) {
         Position possibleMove = movable.getPossiblePosition(this.getPosition());
         if (possibleMove == null) {

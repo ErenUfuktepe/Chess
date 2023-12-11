@@ -119,6 +119,7 @@ public class ChessBoard extends JFrame {
     private ActionListener squareAction() {
         return event -> {
             boolean isPlayed = false;
+            disablePiecesBasedOnTurn();
 
             Square activeSquare = ((Square) event.getSource());
             Square previousActiveSquare = squares.parallelStream()

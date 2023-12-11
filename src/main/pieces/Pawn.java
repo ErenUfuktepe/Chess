@@ -71,22 +71,6 @@ public class Pawn extends Piece {
         }
     }
 
-    @Override
-    public Piece move(String key) {
-        if (this.isFirstMove()) {
-            this.setFirstMove(false);
-        }
-
-        if (Character.digit(key.charAt(1), 10) == 0 || Character.digit(key.charAt(1), 10) == 7) {
-            changeThePiece();
-        }
-
-        this.getPosition().setX(Character.digit(key.charAt(0), 10))
-                .setY(Character.digit(key.charAt(1), 10));
-
-        return this;
-    }
-
     private void changeThePiece() {
         // Todo : Change the piece
         System.out.println("Victory will be ours!");

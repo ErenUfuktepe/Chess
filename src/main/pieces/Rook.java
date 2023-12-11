@@ -33,15 +33,4 @@ public class Rook extends Piece {
         return possibleMoves;
     }
 
-    @Override
-    public Piece move(String key) {
-        if (this.isFirstMove()) {
-            this.setFirstMove(false);
-        }
-        this.getPosition().setX(Character.digit(key.charAt(0), 10))
-                .setY(Character.digit(key.charAt(1), 10));
-
-        return this;
-    }
-
 }

@@ -106,15 +106,4 @@ public class King extends Piece {
         this.setPosition(rook.getPosition().getX() == 0 ? 2 : 6, yAxis);
         rook.setPosition(rook.getPosition().getX() == 0 ? 3 : 5, yAxis);
     }
-
-    @Override
-    public Piece move(String key) {
-        if (this.isFirstMove()) {
-            this.setFirstMove(false);
-        }
-        this.getPosition().setX(Character.digit(key.charAt(0), 10))
-                .setY(Character.digit(key.charAt(1), 10));
-
-        return this;
-    }
 }
