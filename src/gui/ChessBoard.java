@@ -1,6 +1,6 @@
 package gui;
 
-import main.Position;
+import main.moves.Position;
 import main.pieces.King;
 import main.pieces.Piece;
 import main.pieces.Rook;
@@ -133,7 +133,7 @@ public class ChessBoard extends JFrame {
                     || activeSquare.getBackground().equals(Color.RED)) {
                 isPlayed = true;
                 if (!activeSquare.hasPiece() || activeSquare.getBackground().equals(Color.RED)) {
-                    previousActiveSquare.getPiece().setPosition(activeSquare.getKey());
+                    previousActiveSquare.getPiece().movePiece(activeSquare.getKey());
                 }
                 else if (activeSquare.getBackground().equals(Color.GREEN)) {
                     ((King) previousActiveSquare.getPiece()).doCastling((Rook) activeSquare.getPiece());

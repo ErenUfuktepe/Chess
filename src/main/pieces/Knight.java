@@ -1,6 +1,6 @@
 package main.pieces;
 
-import main.Position;
+import main.moves.Position;
 import main.moves.MoveL;
 
 import java.awt.*;

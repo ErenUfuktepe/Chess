@@ -1,4 +1,4 @@
-package main;
+package main.moves;
 
 public class Position {
     private int x;

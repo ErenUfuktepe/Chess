@@ -1,6 +1,6 @@
 package main.pieces;
 
-import main.Position;
+import main.moves.Position;
 import main.moves.Movable;
 
 import java.awt.*;
@@ -30,13 +30,21 @@ public abstract class Piece {
         return this;
     }
 
-    public Piece setPosition(String key) {
+    private Piece setPosition(String key) {
         int x = Character.digit(key.charAt(0), 10);
         int y = Character.digit(key.charAt(1), 10);
         this.position.setX(x)
                 .setY(y);
         return this;
     }
+
+    public Piece movePiece(String key) {
+        if (this.isFirstMove) {
+            this.isFirstMove = false;
+        }
+        return setPosition(key);
+    }
+
 
     public Color getColor() {
         return color;
@@ -77,11 +85,6 @@ public abstract class Piece {
 
     public boolean isFirstMove() {
         return isFirstMove;
-    }
-
-    public Piece setFirstMove(boolean firstMove) {
-        isFirstMove = firstMove;
-        return this;
     }
 
     protected boolean isMovable(Movable movable, Map<String, Piece> pieceMap) {

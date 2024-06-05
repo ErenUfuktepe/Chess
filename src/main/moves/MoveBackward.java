@@ -1,7 +1,5 @@
 package main.moves;
 
-import main.Position;
-
 import java.util.ArrayList;
 import java.util.List;
 
