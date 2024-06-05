@@ -9,10 +9,8 @@ import main.player.Player;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class ChessBoard extends JFrame {
@@ -20,6 +18,7 @@ public class ChessBoard extends JFrame {
     private final List<Square> squares = new ArrayList<>();
     private Player player1;
     private Player player2;
+    private Map<String, Piece> pieceMap = new HashMap<>();
 
     public ChessBoard(Player player1, Player player2) {
         this.player1 = player1;
@@ -35,6 +34,7 @@ public class ChessBoard extends JFrame {
                 .forEach(piece -> placePiecesToSquares(piece));
         this.player2.getPieces().stream()
                 .forEach(piece -> placePiecesToSquares(piece));
+        this.pieceMap = getPieceMap();
 
         disablePiecesBasedOnTurn();
         disableEmptySquare();
@@ -116,27 +116,37 @@ public class ChessBoard extends JFrame {
             .forEach(square -> square.setEnabled(false));
     }
 
+    private Map<String, Piece> getPieceMap() {
+        return squares.parallelStream()
+            .filter(a -> a.hasPiece())
+            .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece()));
+    }
+
+    private void refreshPieceMap() {
+        this.pieceMap = getPieceMap();
+    }
+
     private ActionListener squareAction() {
         return event -> {
             boolean isPlayed = false;
             disablePiecesBasedOnTurn();
-
-            Square activeSquare = ((Square) event.getSource());
-            Square previousActiveSquare = squares.parallelStream()
+            // Square that is clicked to move a Piece to new square.
+            Square actionSquare = ((Square) event.getSource());
+            // Square that is clicked to move a Piece.
+            Square activeSquare = squares.parallelStream()
                     .filter(square -> (square.isActive()))
                     .findFirst()
                     .orElse(null);
 
-
             // Move the piece
-            if (activeSquare.getBackground().equals(Color.GREEN)
-                    || activeSquare.getBackground().equals(Color.RED)) {
+            if (actionSquare.getBackground().equals(Color.GREEN)
+                    || actionSquare.getBackground().equals(Color.RED)) {
                 isPlayed = true;
-                if (!activeSquare.hasPiece() || activeSquare.getBackground().equals(Color.RED)) {
-                    previousActiveSquare.getPiece().movePiece(activeSquare.getKey());
+                if (!actionSquare.hasPiece() || actionSquare.getBackground().equals(Color.RED)) {
+                    activeSquare.getPiece().movePiece(actionSquare.getKey());
                 }
-                else if (activeSquare.getBackground().equals(Color.GREEN)) {
-                    ((King) previousActiveSquare.getPiece()).doCastling((Rook) activeSquare.getPiece());
+                else if (actionSquare.getBackground().equals(Color.GREEN)) {
+                    ((King) activeSquare.getPiece()).doCastling((Rook) actionSquare.getPiece());
                 }
                 squares.parallelStream().forEach(square -> square.reset());
                 squares.parallelStream()
@@ -148,18 +158,16 @@ public class ChessBoard extends JFrame {
                         }
                     });
                 switchPlayer();
+                refreshPieceMap();
             }
             // Get possible moves
-            else if (activeSquare.hasPiece()) {
+            else if (actionSquare.hasPiece()) {
+                // Reset all the squares background color to their original color.
                 squares.parallelStream().forEach(square -> square.reset());
-
-                Map<String, Piece> pieceMap = squares.parallelStream()
-                        .filter(a -> a.hasPiece())
-                        .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece()));
-                List<Position> possibleMoves = activeSquare.getPiece().getMoves(pieceMap);
-
+                // Get the possible positions for the active piece.
+                List<Position> possibleMoves = actionSquare.getPiece().getMoves(this.pieceMap);
                 Color color = player1.isTurn() ? player1.getColor() : player2.getColor();
-
+                // Change possible positions background color.
                 possibleMoves.stream().forEach(position -> {
                     Square possibleSquare = getSquare(position.getKey());
                     Color background = possibleSquare.hasPiece() && !possibleSquare.getPiece().getColor().equals(color) ? Color.RED : Color.GREEN;
@@ -168,9 +176,9 @@ public class ChessBoard extends JFrame {
             }
 
             if (!isPlayed) {
-                activeSquare.setActive(true);
-                if (previousActiveSquare != null) {
-                    previousActiveSquare.setActive(false);
+                actionSquare.setActive(true);
+                if (activeSquare != null) {
+                    activeSquare.setActive(false);
                 }
             }
         };
