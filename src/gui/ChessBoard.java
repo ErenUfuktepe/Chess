@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChessBoard extends JFrame {
     private static final JPanel panel = new JPanel();
@@ -23,58 +24,55 @@ public class ChessBoard extends JFrame {
     public ChessBoard(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
-
+        // Creating pieces for each player.
         this.player1.setupPlayer();
         this.player2.setupPlayer();
-
-        setupSquares();
+        // Setting up the chess board.
         setup();
+    }
 
-        this.player1.getPieces().stream()
-                .forEach(piece -> placePiecesToSquares(piece));
-        this.player2.getPieces().stream()
-                .forEach(piece -> placePiecesToSquares(piece));
+    private void setup() {
+        setupMainWindow();
+        // Placing players pieces to board.
+        Stream.concat(player1.getPieces().stream(), player2.getPieces().stream())
+                        .forEach(piece -> placePiecesToSquares(piece));
+        // Creating a key(position) - piece map.
         this.pieceMap = getPieceMap();
-
         disablePiecesBasedOnTurn();
         disableEmptySquare();
     }
 
-    private void setup() {
+    private void setupMainWindow() {
+        setupChessBoard();
         this.panel.setLayout(null);
-        add(this.panel);
-        setSize(415, 440);
-        setBackground(Color.BLACK);
-        setTitle("Chess");
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
+        this.add(this.panel);
+        this.setSize(415, 440);
+        this.setBackground(Color.BLACK);
+        this.setTitle("Chess");
+        this.setLocationRelativeTo(null);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setVisible(true);
     }
 
-    private void setupSquares() {
+    private void setupChessBoard() {
         int xAxis = 0, yAxis = 0, key = 7;
         boolean makeDark = true;
 
         for (int index = 0; index < 64; index++, key += 10, xAxis += 50) {
-            // New line.
+            makeDark = !makeDark;
+            // After every eight square update yAxis
             if (index != 0 && index % 8 == 0) {
                 yAxis = yAxis + 50;
                 xAxis = 0;
                 key = key - 81;
-            }
-            else {
                 makeDark = !makeDark;
             }
-
             Square square = new Square();
             square.addActionListener(squareAction());
             square.setBounds(xAxis, yAxis, 50, 50);
             // Formatting one digit keys to two digit -> (1 => 01)
             square.setKey(String.format("%02d", key));
-
-            Color color = makeDark ? Color.DARK_GRAY : Color.WHITE;
-            square.setColor(color);
-
+            square.setColor(makeDark ? Color.DARK_GRAY : Color.WHITE);
             squares.add(square);
             panel.add(square);
         }
@@ -95,9 +93,8 @@ public class ChessBoard extends JFrame {
     }
 
     private void switchPlayer() {
-        boolean player1Turn = player1.isTurn(), player2Turn = player2.isTurn();
-        this.player1.setTurn(player2Turn);
-        this.player2.setTurn(player1Turn);
+        this.player1.setTurn(!player1.isTurn());
+        this.player2.setTurn(!player2.isTurn());
         disablePiecesBasedOnTurn();
         disableEmptySquare();
     }
