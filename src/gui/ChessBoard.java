@@ -24,18 +24,13 @@ public class ChessBoard extends JFrame {
     public ChessBoard(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
-        // Creating pieces for each player.
-        this.player1.setupPlayer();
-        this.player2.setupPlayer();
-        // Setting up the chess board.
-        setup();
     }
 
-    private void setup() {
+    public void build() {
         setupMainWindow();
         // Placing players pieces to board.
         Stream.concat(player1.getPieces().stream(), player2.getPieces().stream())
-                        .forEach(piece -> placePiecesToSquares(piece));
+                        .forEach(piece -> placePieceToSquare(piece));
         // Creating a key(position) - piece map.
         this.pieceMap = getPieceMap();
         disablePiecesBasedOnTurn();
@@ -67,12 +62,10 @@ public class ChessBoard extends JFrame {
                 key = key - 81;
                 makeDark = !makeDark;
             }
-            Square square = new Square();
+            Square square = new Square(xAxis, yAxis, makeDark ? Color.DARK_GRAY : Color.WHITE);
             square.addActionListener(squareAction());
-            square.setBounds(xAxis, yAxis, 50, 50);
             // Formatting one digit keys to two digit -> (1 => 01)
             square.setKey(String.format("%02d", key));
-            square.setColor(makeDark ? Color.DARK_GRAY : Color.WHITE);
             squares.add(square);
             panel.add(square);
         }
@@ -87,8 +80,10 @@ public class ChessBoard extends JFrame {
 
     private void disablePiecesBasedOnTurn() {
         player1.getPieces().parallelStream()
+                .filter(piece -> !piece.isTaken())
                 .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(player1.isTurn()));
         player2.getPieces().parallelStream()
+                .filter(piece -> !piece.isTaken())
                 .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(player2.isTurn()));
     }
 
@@ -99,7 +94,7 @@ public class ChessBoard extends JFrame {
         disableEmptySquare();
     }
 
-    private void placePiecesToSquares(Piece piece) {
+    private void placePieceToSquare(Piece piece) {
         Square square = this.squares.stream()
                 .filter(sq -> sq.getKey().equals(piece.getPosition().getKey()))
                 .findFirst()
@@ -123,6 +118,11 @@ public class ChessBoard extends JFrame {
         this.pieceMap = getPieceMap();
     }
 
+    private void refreshBackgroundColors() {
+        // Reset all the squares background color to their original color.
+        squares.parallelStream().forEach(square -> square.reset());
+    }
+
     private ActionListener squareAction() {
         return event -> {
             boolean isPlayed = false;
@@ -136,47 +136,45 @@ public class ChessBoard extends JFrame {
                     .orElse(null);
 
             // Move the piece
-            if (actionSquare.getBackground().equals(Color.GREEN)
+            if(actionSquare.getBackground().equals(Color.GREEN)
                     || actionSquare.getBackground().equals(Color.RED)) {
-                isPlayed = true;
-                if (!actionSquare.hasPiece() || actionSquare.getBackground().equals(Color.RED)) {
+
+                if(activeSquare != null) {
+                    activeSquare.setActive(false);
+                }
+
+                // Move empty space
+                if(!actionSquare.hasPiece()){
                     activeSquare.getPiece().movePiece(actionSquare.getKey());
                 }
-                else if (actionSquare.getBackground().equals(Color.GREEN)) {
+                else if(actionSquare.getBackground().equals(Color.RED)) {
+                    activeSquare.getPiece().takes(actionSquare.getPiece());
+                }
+                else if(actionSquare.getBackground().equals(Color.GREEN)) {
                     ((King) activeSquare.getPiece()).doCastling((Rook) actionSquare.getPiece());
                 }
-                squares.parallelStream().forEach(square -> square.reset());
-                squares.parallelStream()
-                    .forEach(square -> {
-                        if (square.isMoved()) {
-                            getSquare(square.getPiece().getPosition().getKey())
-                                    .setPiece(square.getPiece());
-                            square.setPiece(null);
-                        }
-                    });
-                switchPlayer();
+
+                getSquare(actionSquare.getKey()).setPiece(activeSquare.getPiece());
+                getSquare(activeSquare.getKey()).setPiece(null);
+                refreshBackgroundColors();
                 refreshPieceMap();
+                switchPlayer();
             }
             // Get possible moves
             else if (actionSquare.hasPiece()) {
-                // Reset all the squares background color to their original color.
-                squares.parallelStream().forEach(square -> square.reset());
+                refreshBackgroundColors();
                 // Get the possible positions for the active piece.
                 List<Position> possibleMoves = actionSquare.getPiece().getMoves(this.pieceMap);
-                Color color = player1.isTurn() ? player1.getColor() : player2.getColor();
                 // Change possible positions background color.
                 possibleMoves.stream().forEach(position -> {
                     Square possibleSquare = getSquare(position.getKey());
-                    Color background = possibleSquare.hasPiece() && !possibleSquare.getPiece().getColor().equals(color) ? Color.RED : Color.GREEN;
+                    // If there is opponents piece, set the background color to red.
+                    Color background = possibleSquare.hasPiece() && !possibleSquare.getPiece().getColor().equals(actionSquare.getPiece().getColor())
+                            ? Color.RED
+                            : Color.GREEN;
                     possibleSquare.makeMovable(background);
                 });
-            }
-
-            if (!isPlayed) {
                 actionSquare.setActive(true);
-                if (activeSquare != null) {
-                    activeSquare.setActive(false);
-                }
             }
         };
     }

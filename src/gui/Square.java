@@ -10,14 +10,17 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class Square extends JButton {
+    private static int WIDTH = 50;
+    private static int HEIGHT = 50;
     private Color color;
     private String key;
     private Piece piece;
     private boolean isActive = false;
     private boolean hasPiece = false;
-
-    public Square() {
-
+    public Square(int xAxis, int yAxis, Color color){
+        this.color = color;
+        setBounds(xAxis, yAxis, WIDTH, HEIGHT);
+        setBackground(color);
     }
 
     public String getKey() {
@@ -55,11 +58,6 @@ public class Square extends JButton {
         return color;
     }
 
-    public void setColor(Color color) {
-        setBackground(color);
-        this.color = color;
-    }
-
     public boolean isActive() {
         return isActive;
     }
@@ -81,20 +79,11 @@ public class Square extends JButton {
         return this;
     }
 
-
-    public boolean isMoved() {
-        if (this.hasPiece) {
-            return !this.piece.getPosition().getKey().equals(this.key);
-        }
-        return false;
-    }
-
     public Square makeMovable(Color color) {
         setBackground(color);
         setEnabled(true);
         return this;
     }
-
 
     @Override
     public void addActionListener(ActionListener l) {

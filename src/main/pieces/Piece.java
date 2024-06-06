@@ -14,6 +14,7 @@ public abstract class Piece {
     private Position position = new Position();
     private Color color;
     private boolean isFirstMove = true;
+    private boolean isTaken = false;
     private List<Movable> movables = new ArrayList<>();
 
     public Piece(Color color){
@@ -31,10 +32,13 @@ public abstract class Piece {
     }
 
     private Piece setPosition(String key) {
-        int x = Character.digit(key.charAt(0), 10);
-        int y = Character.digit(key.charAt(1), 10);
-        this.position.setX(x)
-                .setY(y);
+        if(key == null) {
+            this.position = null;
+            this.isTaken = true;
+            return this;
+        }
+        this.position.setX(Character.digit(key.charAt(0), 10))
+                .setY(Character.digit(key.charAt(1), 10));
         return this;
     }
 
@@ -45,6 +49,11 @@ public abstract class Piece {
         return setPosition(key);
     }
 
+    public Piece takes(Piece takenPiece) {
+        this.setPosition(takenPiece.getPosition().getKey());
+        takenPiece.setPosition(null);
+        return this;
+    }
 
     public Color getColor() {
         return color;
@@ -140,5 +149,9 @@ public abstract class Piece {
     public Piece addMovable(Movable movable) {
         this.movables.add(movable);
         return this;
+    }
+
+    public boolean isTaken(){
+        return this.isTaken;
     }
 }

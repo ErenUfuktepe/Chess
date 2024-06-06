@@ -1,13 +1,19 @@
 package main;
 
 import gui.ChessBoard;
-import main.player.BlackPlayer;
-import main.player.WhitePlayer;
+import main.player.Player;
+
+import java.awt.*;
 
 public class Main {
 
     public static void main(String[] args) {
-        ChessBoard chessBoard = new ChessBoard(new WhitePlayer(), new BlackPlayer());
+        Player player1 = new Player(Color.WHITE);
+        Player player2 = new Player(Color.BLACK);
+        player1.setTurn(true);
+
+        ChessBoard chessBoard = new ChessBoard(player1, player2);
+        chessBoard.build();
     }
 
 }
