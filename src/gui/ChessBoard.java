@@ -9,47 +9,41 @@ import main.player.Player;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChessBoard extends JFrame {
+
+    private static final String TITLE = "Chess";
+    private static final int WIDTH = 415;
+    private static final int HEIGHT = 440;
     private static final JPanel panel = new JPanel();
     private final List<Square> squares = new ArrayList<>();
-    private Player player1;
-    private Player player2;
+    private final Player player1;
+    private final Player player2;
     private Map<String, Piece> pieceMap = new HashMap<>();
 
     public ChessBoard(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
+        setupSquare();
     }
 
     public void build() {
-        setupMainWindow();
-        // Placing players pieces to board.
-        Stream.concat(player1.getPieces().stream(), player2.getPieces().stream())
-                        .forEach(piece -> placePieceToSquare(piece));
-        // Creating a key(position) - piece map.
-        this.pieceMap = getPieceMap();
-        disablePiecesBasedOnTurn();
-    }
-
-    private void setupMainWindow() {
-        setupChessBoard();
-        this.panel.setLayout(null);
-        this.add(this.panel);
-        this.setSize(415, 440);
+        panel.setLayout(null);
+        this.add(panel);
+        this.setSize(WIDTH, HEIGHT);
         this.setBackground(Color.BLACK);
-        this.setTitle("Chess");
+        this.setTitle(TITLE);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
+        disablePiecesBasedOnTurn();
     }
 
-    private void setupChessBoard() {
+    private void setupSquare() {
         int xAxis = 0, yAxis = 0, key = 7;
         boolean makeDark = true;
 
@@ -69,6 +63,11 @@ public class ChessBoard extends JFrame {
             squares.add(square);
             panel.add(square);
         }
+        // Placing players pieces to board.
+        Stream.concat(player1.getPieces().stream(), player2.getPieces().stream())
+                .forEach(this::placePieceToSquare);
+        // Creating a key(position) - piece map.
+        this.pieceMap = getPieceMap();
     }
 
     private Square getSquare(String key) {
@@ -110,8 +109,8 @@ public class ChessBoard extends JFrame {
 
     private Map<String, Piece> getPieceMap() {
         return squares.parallelStream()
-            .filter(a -> a.hasPiece())
-            .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece()));
+            .filter(Square::hasPiece)
+            .collect(Collectors.toMap(Square::getKey, Square::getPiece));
     }
 
     private void refreshBackgroundColors(Square activeSquare) {
@@ -138,7 +137,7 @@ public class ChessBoard extends JFrame {
                 disableEmptySquare();
                 refreshBackgroundColors(activeSquare);
                 List<Position> possibleMoves = activeSquare.getPiece().getMoves(this.pieceMap);
-                possibleMoves.stream().forEach(position -> {
+                possibleMoves.parallelStream().forEach(position -> {
                     Square possibleSquare = getSquare(position.getKey());
                     // If there is opponents piece, set the background color to red.
                     Color background = possibleSquare.hasPiece() && !possibleSquare.getPiece().getColor().equals(activeSquare.getPiece().getColor())
@@ -150,7 +149,7 @@ public class ChessBoard extends JFrame {
             }
 
             Square activeSquareWithPiece = this.squares.parallelStream()
-                    .filter(square -> square.isActive())
+                    .filter(Square::isActive)
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("No active Square found."));
 
