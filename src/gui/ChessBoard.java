@@ -9,6 +9,7 @@ import main.player.Player;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +35,6 @@ public class ChessBoard extends JFrame {
         // Creating a key(position) - piece map.
         this.pieceMap = getPieceMap();
         disablePiecesBasedOnTurn();
-        disableEmptySquare();
     }
 
     private void setupMainWindow() {
@@ -79,6 +79,7 @@ public class ChessBoard extends JFrame {
     }
 
     private void disablePiecesBasedOnTurn() {
+        disableEmptySquare();
         player1.getPieces().parallelStream()
                 .filter(piece -> !piece.isTaken())
                 .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(player1.isTurn()));
@@ -91,7 +92,6 @@ public class ChessBoard extends JFrame {
         this.player1.setTurn(!player1.isTurn());
         this.player2.setTurn(!player2.isTurn());
         disablePiecesBasedOnTurn();
-        disableEmptySquare();
     }
 
     private void placePieceToSquare(Piece piece) {
@@ -114,68 +114,65 @@ public class ChessBoard extends JFrame {
             .collect(Collectors.toMap(sq -> sq.getKey(), sq -> sq.getPiece()));
     }
 
-    private void refreshPieceMap() {
-        this.pieceMap = getPieceMap();
-    }
-
-    private void refreshBackgroundColors() {
+    private void refreshBackgroundColors(Square activeSquare) {
         // Reset all the squares background color to their original color.
-        squares.parallelStream().forEach(square -> square.reset());
+        squares.parallelStream().forEach(square -> {
+            // Deactivate the previous square.
+            if (square.isActive()) {
+                square.setActive(false);
+            }
+            square.reset();
+        });
+        // Set the new active square.
+        if (activeSquare != null) {
+            activeSquare.setActive(true);
+        }
     }
 
-    private ActionListener squareAction() {
+    private ActionListener squareAction() throws RuntimeException {
         return event -> {
-            boolean isPlayed = false;
-            disablePiecesBasedOnTurn();
-            // Square that is clicked to move a Piece to new square.
-            Square actionSquare = ((Square) event.getSource());
-            // Square that is clicked to move a Piece.
-            Square activeSquare = squares.parallelStream()
-                    .filter(square -> (square.isActive()))
-                    .findFirst()
-                    .orElse(null);
+            Square activeSquare = ((Square) event.getSource());
 
-            // Move the piece
-            if(actionSquare.getBackground().equals(Color.GREEN)
-                    || actionSquare.getBackground().equals(Color.RED)) {
-
-                if(activeSquare != null) {
-                    activeSquare.setActive(false);
-                }
-
-                // Move empty space
-                if(!actionSquare.hasPiece()){
-                    activeSquare.getPiece().movePiece(actionSquare.getKey());
-                }
-                else if(actionSquare.getBackground().equals(Color.RED)) {
-                    activeSquare.getPiece().takes(actionSquare.getPiece());
-                }
-                else if(actionSquare.getBackground().equals(Color.GREEN)) {
-                    ((King) activeSquare.getPiece()).doCastling((Rook) actionSquare.getPiece());
-                }
-
-                getSquare(actionSquare.getKey()).setPiece(activeSquare.getPiece());
-                getSquare(activeSquare.getKey()).setPiece(null);
-                refreshBackgroundColors();
-                refreshPieceMap();
-                switchPlayer();
-            }
-            // Get possible moves
-            else if (actionSquare.hasPiece()) {
-                refreshBackgroundColors();
-                // Get the possible positions for the active piece.
-                List<Position> possibleMoves = actionSquare.getPiece().getMoves(this.pieceMap);
-                // Change possible positions background color.
+            // Get possible moves for the piece.
+            if (activeSquare.getBackground().equals(activeSquare.getColor())) {
+                disableEmptySquare();
+                refreshBackgroundColors(activeSquare);
+                List<Position> possibleMoves = activeSquare.getPiece().getMoves(this.pieceMap);
                 possibleMoves.stream().forEach(position -> {
                     Square possibleSquare = getSquare(position.getKey());
                     // If there is opponents piece, set the background color to red.
-                    Color background = possibleSquare.hasPiece() && !possibleSquare.getPiece().getColor().equals(actionSquare.getPiece().getColor())
+                    Color background = possibleSquare.hasPiece() && !possibleSquare.getPiece().getColor().equals(activeSquare.getPiece().getColor())
                             ? Color.RED
                             : Color.GREEN;
                     possibleSquare.makeMovable(background);
                 });
-                actionSquare.setActive(true);
+                return;
             }
+
+            Square activeSquareWithPiece = this.squares.parallelStream()
+                    .filter(square -> square.isActive())
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("No active Square found."));
+
+            // Move to empty square.
+            if (!activeSquare.hasPiece()) {
+                activeSquareWithPiece.getPiece().movePiece(activeSquare.getKey());
+            }
+            // Takes opponents piece.
+            else if (activeSquare.getBackground().equals(Color.RED)) {
+                activeSquareWithPiece.getPiece().takes(activeSquare.getPiece());
+            }
+            // Special cases such as castling.
+            else if (activeSquare.getBackground().equals(Color.GREEN)) {
+                // TODO : Not working anymore
+                ((King) activeSquareWithPiece.getPiece()).doCastling((Rook) activeSquare.getPiece());
+            }
+
+            activeSquare.setPiece(activeSquareWithPiece.getPiece());
+            activeSquareWithPiece.setPiece(null);
+            refreshBackgroundColors(null);
+            this.pieceMap = getPieceMap();
+            switchPlayer();
         };
     }
 }
