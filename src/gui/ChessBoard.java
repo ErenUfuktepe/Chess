@@ -113,12 +113,17 @@ public class ChessBoard extends JFrame {
             .collect(Collectors.toMap(Square::getKey, Square::getPiece));
     }
 
-    private void refreshBackgroundColors(Square activeSquare) {
+    private void refreshChessBoard(Square activeSquare) {
         // Reset all the squares background color to their original color.
         squares.parallelStream().forEach(square -> {
             // Deactivate the previous square.
             if (square.isActive()) {
                 square.setActive(false);
+            }
+            if (square.hasPiece() && !square.getPiece().getPosition().getKey().equals(square.getKey())) {
+                String key = square.getPiece().getPosition().getKey();
+                getSquare(key).setPiece(square.getPiece());
+                square.setPiece(null);
             }
             square.reset();
         });
@@ -135,7 +140,7 @@ public class ChessBoard extends JFrame {
             // Get possible moves for the piece.
             if (activeSquare.getBackground().equals(activeSquare.getColor())) {
                 disableEmptySquare();
-                refreshBackgroundColors(activeSquare);
+                refreshChessBoard(activeSquare);
                 List<Position> possibleMoves = activeSquare.getPiece().getMoves(this.pieceMap);
                 possibleMoves.parallelStream().forEach(position -> {
                     Square possibleSquare = getSquare(position.getKey());
@@ -161,15 +166,12 @@ public class ChessBoard extends JFrame {
             else if (activeSquare.getBackground().equals(Color.RED)) {
                 activeSquareWithPiece.getPiece().takes(activeSquare.getPiece());
             }
-            // Special cases such as castling.
+            // Castling.
             else if (activeSquare.getBackground().equals(Color.GREEN)) {
-                // TODO : Not working anymore
                 ((King) activeSquareWithPiece.getPiece()).doCastling((Rook) activeSquare.getPiece());
             }
 
-            activeSquare.setPiece(activeSquareWithPiece.getPiece());
-            activeSquareWithPiece.setPiece(null);
-            refreshBackgroundColors(null);
+            refreshChessBoard(null);
             this.pieceMap = getPieceMap();
             switchPlayer();
         };
