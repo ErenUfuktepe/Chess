@@ -115,12 +115,17 @@ public class ChessBoard extends JFrame {
 
     private void refreshChessBoard(Square activeSquare) {
         // Reset all the squares background color to their original color.
-        squares.parallelStream().forEach(square -> {
+        squares.stream().forEach(square -> {
             // Deactivate the previous square.
             if (square.isActive()) {
                 square.setActive(false);
             }
-            if (square.hasPiece() && !square.getPiece().getPosition().getKey().equals(square.getKey())) {
+            // When piece is taken.
+            if (square.hasPiece() && square.getPiece().getPosition() == null) {
+                square.setPiece(null);
+            }
+            // When piece is moving.
+            else if (square.hasPiece() && !square.getPiece().getPosition().getKey().equals(square.getKey())) {
                 String key = square.getPiece().getPosition().getKey();
                 getSquare(key).setPiece(square.getPiece());
                 square.setPiece(null);

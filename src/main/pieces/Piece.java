@@ -43,14 +43,12 @@ public abstract class Piece {
     }
 
     public Piece movePiece(String key) {
-        if (this.isFirstMove) {
-            this.isFirstMove = false;
-        }
+        this.isFirstMove = false;
         return setPosition(key);
     }
 
     public Piece takes(Piece takenPiece) {
-        this.setPosition(takenPiece.getPosition().getKey());
+        this.movePiece(takenPiece.getPosition().getKey());
         takenPiece.setPosition(null);
         return this;
     }
@@ -74,10 +72,6 @@ public abstract class Piece {
         return allMoves;
     }
 
-    public Map<Position, Position> getSpecialMoves(Map<String, Piece> pieceMap) {
-        return new HashMap<>();
-    }
-
     public List<Position> getPossibleMoves(Map<String, Piece> pieceMap) {
         List<Position> possibleMoves = new ArrayList<>();
         this.movables.parallelStream()
@@ -94,6 +88,11 @@ public abstract class Piece {
 
     public boolean isFirstMove() {
         return isFirstMove;
+    }
+
+    public Piece setIsFirstMove(boolean isFirstMove) {
+        this.isFirstMove = isFirstMove;
+        return this;
     }
 
     protected boolean isMovable(Movable movable, Map<String, Piece> pieceMap) {

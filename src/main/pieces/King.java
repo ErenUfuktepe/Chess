@@ -50,52 +50,47 @@ public class King extends Piece {
         }
     }
 
-    private boolean isCastlingRookConditionMet(Map<String, Piece> pieceMap) {
-        String yAxis = this.getColor().equals(Color.WHITE) ? "0" : "7";
+    public List<Position> getCastlingPositions(Map<String, Piece> pieceMap) {
+        // TODO : Add the remaining castling conditions
+        //        1) Can't do castling if it is check.
+        //        1) Can't do castling if king moves to check position.
+        List<Position> castlingMoves = new ArrayList<>();
+
+        int yAxis = this.getColor().equals(Color.WHITE) ? 0 : 7;
         String leftRookCoordinate = "0" + yAxis;
         String rightRookCoordinate = "7" + yAxis;
-
-        boolean isLeftRookConditionMet = pieceMap.get(leftRookCoordinate) != null
-                && pieceMap.get(leftRookCoordinate).getClass().equals(Rook.class)
-                && pieceMap.get(leftRookCoordinate).isFirstMove();
-
-        boolean isRightRookConditionMet = pieceMap.get(rightRookCoordinate) != null
-                && pieceMap.get(rightRookCoordinate).getClass().equals(Rook.class)
-                && pieceMap.get(rightRookCoordinate).isFirstMove();
-
-        return isLeftRookConditionMet || isRightRookConditionMet;
-    }
-
-    public List<Position> getCastlingPositions(Map<String, Piece> pieceMap) {
-        List<Position> castlingMoves = new ArrayList<>();
-        boolean isCastling = true;
 
         if (!this.isFirstMove()) {
             return castlingMoves;
         }
 
-        if (!isCastlingRookConditionMet(pieceMap)) {
-            return castlingMoves;
+        // Check left castling.
+        if (pieceMap.get(leftRookCoordinate) != null
+                && pieceMap.get(leftRookCoordinate).getClass().equals(Rook.class)
+                && pieceMap.get(leftRookCoordinate).isFirstMove()) {
+            for (int xAxis = 1; xAxis <= 3; xAxis++) {
+                String key = xAxis + String.valueOf(yAxis);
+                if (pieceMap.get(key) != null) {
+                    break;
+                }
+                else if (xAxis == 3) {
+                    castlingMoves.add(new Position(0, yAxis));
+                }
+            }
         }
 
-        for (int key = 1; key < 8; key++) {
-            // Make decision if we are in king position or end of the board.
-            boolean makeDecision = (key == 4 || key == 7);
-            String positionKey = this.getColor().equals(Color.WHITE) ? key + "0" : key + "7";
-
-            if (!makeDecision && !(isCastling && pieceMap.get(positionKey) == null)) {
-                // If there is a piece between king and rook don't check all the locations.
-                key = key < 4 ? 3 : 7;
-                isCastling = false;
-            }
-
-            if (makeDecision) {
-                if (isCastling) {
-                    int xAxis = key == 4 ? 0 : 7;
-                    int yAxis = this.getColor().equals(Color.WHITE) ? 0 : 7;
-                    castlingMoves.add(new Position(xAxis, yAxis)); // Rook postion
+        // Check right castling.
+        if (pieceMap.get(rightRookCoordinate) != null
+                && pieceMap.get(rightRookCoordinate).getClass().equals(Rook.class)
+                && pieceMap.get(rightRookCoordinate).isFirstMove()) {
+            for (int xAxis = 5; xAxis <= 6; xAxis++) {
+                String key = xAxis + String.valueOf(yAxis);
+                if (pieceMap.get(key) != null) {
+                    break;
                 }
-                isCastling = true;
+                else if (xAxis == 6) {
+                    castlingMoves.add(new Position(7, yAxis));
+                }
             }
         }
         return castlingMoves;
@@ -103,7 +98,9 @@ public class King extends Piece {
 
     public void doCastling(Rook rook) {
         int yAxis = this.getColor().equals(Color.WHITE) ? 0 : 7;
-        this.setPosition(rook.getPosition().getX() == 0 ? 2 : 6, yAxis);
-        rook.setPosition(rook.getPosition().getX() == 0 ? 3 : 5, yAxis);
+        this.setPosition(rook.getPosition().getX() == 0 ? 2 : 6, yAxis)
+                .setIsFirstMove(false);
+        rook.setPosition(rook.getPosition().getX() == 0 ? 3 : 5, yAxis)
+                .setIsFirstMove(false);
     }
 }
