@@ -1,15 +1,18 @@
 package main.player;
 
 import main.factories.PieceFactory;
+import main.moves.Position;
+import main.pieces.King;
 import main.pieces.Piece;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Player {
+    private Map<String, Piece> pieceMap;
     private List<Piece> pieces = new ArrayList<>();
-    private boolean isTurn;
     private static final PieceFactory pieceFactory = new PieceFactory();
 
     public Player(Color color) {
@@ -24,11 +27,44 @@ public class Player {
         this.pieces = pieces;
     }
 
-    public boolean isTurn() {
-        return isTurn;
+    public Map<String, Piece> getPieceMap() {
+        return pieceMap;
     }
 
-    public void setTurn(boolean turn) {
-        isTurn = turn;
+    public Player setPieceMap(Map<String, Piece> pieceMap) {
+        this.pieceMap = pieceMap;
+        return this;
     }
+
+    private Position getKingPosition() {
+        King king = (King) this.getPieces().parallelStream()
+                .filter(piece -> piece.getClass().equals(King.class))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No king found for the player!"));
+        return king.getPosition();
+    }
+
+    public List<Position> getPossiblePositions(Piece piece) {
+        return piece.getPossibleMoves(pieceMap);
+    }
+
+    public List<Position> getAllPossiblePositionsForAllPieces() {
+        List<Position> allPositions = new ArrayList<>();
+        this.pieces.parallelStream()
+                .filter(piece ->  !piece.isTaken())
+                .forEach(piece -> allPositions.addAll(piece.getPossibleMoves(this.pieceMap)));
+        return allPositions;
+    }
+
+    public boolean isChecked(Player opponentPlayer) {
+        List<Position> opponentAllPositions = opponentPlayer.getAllPossiblePositionsForAllPieces();
+        for (Position opponentPosition : opponentAllPositions) {
+            if (opponentPosition.getKey().equals(getKingPosition().getKey())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }

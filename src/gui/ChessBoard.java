@@ -21,13 +21,13 @@ public class ChessBoard extends JFrame {
     private static final int HEIGHT = 440;
     private static final JPanel panel = new JPanel();
     private final List<Square> squares = new ArrayList<>();
-    private final Player player1;
-    private final Player player2;
+    private Player activePlayer;
+    private Player waitingPlayer;
     private Map<String, Piece> pieceMap = new HashMap<>();
 
     public ChessBoard(Player player1, Player player2) {
-        this.player1 = player1;
-        this.player2 = player2;
+        this.activePlayer = player1;
+        this.waitingPlayer = player2;
         setupSquare();
     }
 
@@ -64,7 +64,7 @@ public class ChessBoard extends JFrame {
             panel.add(square);
         }
         // Placing players pieces to board.
-        Stream.concat(player1.getPieces().stream(), player2.getPieces().stream())
+        Stream.concat(activePlayer.getPieces().stream(), waitingPlayer.getPieces().stream())
                 .forEach(this::placePieceToSquare);
         // Creating a key(position) - piece map.
         this.pieceMap = getPieceMap();
@@ -79,18 +79,24 @@ public class ChessBoard extends JFrame {
 
     private void disablePiecesBasedOnTurn() {
         disableEmptySquare();
-        player1.getPieces().parallelStream()
+        activePlayer.getPieces().parallelStream()
                 .filter(piece -> !piece.isTaken())
-                .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(player1.isTurn()));
-        player2.getPieces().parallelStream()
+                .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(true));
+        waitingPlayer.getPieces().parallelStream()
                 .filter(piece -> !piece.isTaken())
-                .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(player2.isTurn()));
+                .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(false));
     }
 
     private void switchPlayer() {
-        this.player1.setTurn(!player1.isTurn());
-        this.player2.setTurn(!player2.isTurn());
+        Player tempPlayer = this.activePlayer;
+        this.activePlayer = this.waitingPlayer;
+        this.waitingPlayer = tempPlayer;
+        isChecked();
         disablePiecesBasedOnTurn();
+    }
+
+    private boolean isChecked() {
+       return activePlayer.isChecked(waitingPlayer);
     }
 
     private void placePieceToSquare(Piece piece) {
@@ -108,14 +114,17 @@ public class ChessBoard extends JFrame {
     }
 
     private Map<String, Piece> getPieceMap() {
-        return squares.parallelStream()
-            .filter(Square::hasPiece)
-            .collect(Collectors.toMap(Square::getKey, Square::getPiece));
+        Map<String, Piece> map = squares.parallelStream()
+                .filter(Square::hasPiece)
+                .collect(Collectors.toMap(Square::getKey, Square::getPiece));
+        activePlayer.setPieceMap(map);
+        waitingPlayer.setPieceMap(map);
+        return map;
     }
 
     private void refreshChessBoard(Square activeSquare) {
         // Reset all the squares background color to their original color.
-        squares.stream().forEach(square -> {
+        squares.parallelStream().forEach(square -> {
             // Deactivate the previous square.
             if (square.isActive()) {
                 square.setActive(false);
@@ -146,7 +155,7 @@ public class ChessBoard extends JFrame {
             if (activeSquare.getBackground().equals(activeSquare.getColor())) {
                 disableEmptySquare();
                 refreshChessBoard(activeSquare);
-                List<Position> possibleMoves = activeSquare.getPiece().getMoves(this.pieceMap);
+                List<Position> possibleMoves = activePlayer.getPossiblePositions(activeSquare.getPiece());
                 possibleMoves.parallelStream().forEach(position -> {
                     Square possibleSquare = getSquare(position.getKey());
                     // If there is opponents piece, set the background color to red.

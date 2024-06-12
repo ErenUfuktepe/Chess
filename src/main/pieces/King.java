@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class King extends Piece {
+    private boolean isChecked = false;
 
     public King(Color color) {
         super(color);
@@ -102,5 +103,14 @@ public class King extends Piece {
                 .setIsFirstMove(false);
         rook.setPosition(rook.getPosition().getX() == 0 ? 3 : 5, yAxis)
                 .setIsFirstMove(false);
+    }
+
+    public boolean isChecked(){
+        return this.isChecked;
+    }
+
+    public King setIsChecked(boolean isChecked) {
+        this.isChecked = isChecked;
+        return this;
     }
 }
