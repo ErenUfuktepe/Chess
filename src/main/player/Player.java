@@ -4,6 +4,7 @@ import main.factories.PieceFactory;
 import main.moves.Position;
 import main.pieces.King;
 import main.pieces.Piece;
+import main.pieces.Rook;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -27,13 +28,29 @@ public class Player {
         this.pieces = pieces;
     }
 
-    public Map<String, Piece> getPieceMap() {
-        return pieceMap;
-    }
-
     public Player setPieceMap(Map<String, Piece> pieceMap) {
         this.pieceMap = pieceMap;
         return this;
+    }
+
+    public boolean isPlayerPiece(Piece piece) {
+        return this.pieces.contains(piece);
+    }
+
+    public String movePiece(Piece piece, String newPositionKey) {
+        String previousKey = piece.getPosition().getKey();
+        piece.movePiece(newPositionKey);
+        return previousKey;
+    }
+
+    public String takePiece(Piece pieceToMove, Piece pieceToTaken) {
+        String previousKey = pieceToMove.getPosition().getKey();
+        pieceToMove.takes(pieceToTaken);
+        return previousKey;
+    }
+
+    public void doCastling(King king, Rook rook) {
+        king.doCastling(rook);
     }
 
     private Position getKingPosition() {
@@ -65,6 +82,5 @@ public class Player {
         }
         return false;
     }
-
 
 }

@@ -23,7 +23,6 @@ public class ChessBoard extends JFrame {
     private final List<Square> squares = new ArrayList<>();
     private Player activePlayer;
     private Player waitingPlayer;
-    private Map<String, Piece> pieceMap = new HashMap<>();
 
     public ChessBoard(Player player1, Player player2) {
         this.activePlayer = player1;
@@ -40,7 +39,6 @@ public class ChessBoard extends JFrame {
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
-        disablePiecesBasedOnTurn();
     }
 
     private void setupSquare() {
@@ -65,9 +63,10 @@ public class ChessBoard extends JFrame {
         }
         // Placing players pieces to board.
         Stream.concat(activePlayer.getPieces().stream(), waitingPlayer.getPieces().stream())
-                .forEach(this::placePieceToSquare);
-        // Creating a key(position) - piece map.
-        this.pieceMap = getPieceMap();
+                .forEach(piece -> getSquare(piece.getPosition().getKey()).setPiece(piece));
+        disablePiecesBasedOnTurn();
+        // Update board for players
+        updateBoardForPlayers();
     }
 
     private Square getSquare(String key) {
@@ -78,48 +77,37 @@ public class ChessBoard extends JFrame {
     }
 
     private void disablePiecesBasedOnTurn() {
-        disableEmptySquare();
-        activePlayer.getPieces().parallelStream()
-                .filter(piece -> !piece.isTaken())
-                .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(true));
-        waitingPlayer.getPieces().parallelStream()
-                .filter(piece -> !piece.isTaken())
-                .forEach(piece -> getSquare(piece.getPosition().getKey()).setEnabled(false));
+        this.squares.parallelStream()
+                .forEach(square -> {
+                    if (!square.hasPiece()){
+                        square.setEnabled(false);
+                    }
+                    else {
+                        if (waitingPlayer.isPlayerPiece(square.getPiece())){
+                            square.setEnabled(false);
+                        }
+                        else {
+                            square.setEnabled(true);
+                        }
+
+                    }
+                });
     }
 
     private void switchPlayer() {
         Player tempPlayer = this.activePlayer;
         this.activePlayer = this.waitingPlayer;
         this.waitingPlayer = tempPlayer;
-        isChecked();
-        disablePiecesBasedOnTurn();
+        this.activePlayer.isChecked(waitingPlayer);
     }
 
-    private boolean isChecked() {
-       return activePlayer.isChecked(waitingPlayer);
-    }
-
-    private void placePieceToSquare(Piece piece) {
-        Square square = this.squares.stream()
-                .filter(sq -> sq.getKey().equals(piece.getPosition().getKey()))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Square not found for the given key."));
-        square.setPiece(piece);
-    }
-
-    private void disableEmptySquare() {
-        this.squares.parallelStream()
-            .filter(square -> !square.hasPiece())
-            .forEach(square -> square.setEnabled(false));
-    }
-
-    private Map<String, Piece> getPieceMap() {
-        Map<String, Piece> map = squares.parallelStream()
+    private Map<String, Piece> updateBoardForPlayers() {
+        Map<String, Piece> board = squares.parallelStream()
                 .filter(Square::hasPiece)
                 .collect(Collectors.toMap(Square::getKey, Square::getPiece));
-        activePlayer.setPieceMap(map);
-        waitingPlayer.setPieceMap(map);
-        return map;
+        activePlayer.setPieceMap(board);
+        waitingPlayer.setPieceMap(board);
+        return board;
     }
 
     private void refreshChessBoard(Square activeSquare) {
@@ -145,6 +133,7 @@ public class ChessBoard extends JFrame {
         if (activeSquare != null) {
             activeSquare.setActive(true);
         }
+        disablePiecesBasedOnTurn();
     }
 
     private ActionListener squareAction() throws RuntimeException {
@@ -153,7 +142,6 @@ public class ChessBoard extends JFrame {
 
             // Get possible moves for the piece.
             if (activeSquare.getBackground().equals(activeSquare.getColor())) {
-                disableEmptySquare();
                 refreshChessBoard(activeSquare);
                 List<Position> possibleMoves = activePlayer.getPossiblePositions(activeSquare.getPiece());
                 possibleMoves.parallelStream().forEach(position -> {
@@ -174,20 +162,20 @@ public class ChessBoard extends JFrame {
 
             // Move to empty square.
             if (!activeSquare.hasPiece()) {
-                activeSquareWithPiece.getPiece().movePiece(activeSquare.getKey());
+                activePlayer.movePiece(activeSquareWithPiece.getPiece(), activeSquare.getKey());
             }
             // Takes opponents piece.
             else if (activeSquare.getBackground().equals(Color.RED)) {
-                activeSquareWithPiece.getPiece().takes(activeSquare.getPiece());
+                activePlayer.takePiece(activeSquareWithPiece.getPiece(), activeSquare.getPiece());
             }
             // Castling.
             else if (activeSquare.getBackground().equals(Color.GREEN)) {
-                ((King) activeSquareWithPiece.getPiece()).doCastling((Rook) activeSquare.getPiece());
+                activePlayer.doCastling((King) activeSquareWithPiece.getPiece(), (Rook) activeSquare.getPiece());
             }
 
-            refreshChessBoard(null);
-            this.pieceMap = getPieceMap();
             switchPlayer();
+            refreshChessBoard(null);
+            updateBoardForPlayers();
         };
     }
 }
